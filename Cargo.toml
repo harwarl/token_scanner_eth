@@ -2,5 +2,15 @@
 name = "token_scanner_eth"
 version = "0.1.0"
 edition = "2024"
+authors = ["Oduwale Awwal <harwarl87@gmail.com>"]
+description = "An Ethereum token scanner built in Rust"
+license = "MIT"
+repository = "https://github.com/Harwarl/token_scanner_eth"
+keywords = ["ethereum", "web3", "token", "scanner", "blockchain"]
+categories = ["cryptography::cryptocurrencies", "network-programming"]
 
 [dependencies]
+ethers = "2.0.14"
+hex = "0.4.3"
+serde_json = "1.0.150"
+tokio = "1.52.3"
