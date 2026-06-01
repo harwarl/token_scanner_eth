@@ -1,6 +1,7 @@
 pub mod utils;
 pub use utils::*;
 
-fn main() {
-    println!("Hello, world!");
+#[tokio::main]
+async fn main() {
+    println!("Starting Token Scanner for ETH");
 }

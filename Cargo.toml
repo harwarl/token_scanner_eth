@@ -10,7 +10,9 @@ keywords = ["ethereum", "web3", "token", "scanner", "blockchain"]
 categories = ["cryptography::cryptocurrencies", "network-programming"]
 
 [dependencies]
-ethers = "2.0.14"
 hex = "0.4.3"
+ethers = "2.0.14"
 serde_json = "1.0.150"
-tokio = "1.52.3"
+tokio = {version = "1.52.3", features = ["full"]}
+serde = { version = "1.0.228", features = ["derive"] }
+alloy = { version = "0.3", features = ["sol-types", "primitives"] }
