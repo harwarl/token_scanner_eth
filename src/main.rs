@@ -1,12 +1,13 @@
 use crate::config::Config;
 
 pub mod config;
+pub mod types;
 
 #[tokio::main]
 async fn main() {
     // Load the env values
     dotenv::dotenv().ok();
-    let config = Config::from_env().unwrap_or_else(|e| {
+    let _ = Config::from_env().unwrap_or_else(|e| {
         tracing::error!("Configuration Error {e}");
         std::process::exit(1);
     });

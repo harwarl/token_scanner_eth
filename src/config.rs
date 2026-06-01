@@ -1,5 +1,4 @@
 use std::env;
-use ethers::core::k256::sha2::digest::crypto_common;
 use thiserror::Error;
 use url::Url;
 
