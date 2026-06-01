@@ -17,6 +17,7 @@ pub async fn decode_swap<P: Provider>(
     checked_pairs: &mut HashSet<Address>,
     block_number: u64,
     provider: &P,
+    eth_price: f64,
 ) {
     // Check if the hashed set contains the pair address, if it does, skip processing this log to avoid duplicate processing of the same pair in the same block
     if checked_pairs.contains(&pair_address) {

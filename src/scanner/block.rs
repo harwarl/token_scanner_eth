@@ -10,7 +10,7 @@ use crate::{
     utils::{constant::WETH, contracts::IUniswapV2Pair, helpers},
 };
 
-pub async fn analyze_block<P: Provider>(provider: P, block_number: u64) {
+pub async fn analyze_block<P: Provider>(provider: P, block_number: u64, eth_price: f64) {
     tracing::info!("Analyzing block: {}", block_number);
     let mut checked_pairs: HashSet<Address> = HashSet::new();
 
@@ -75,6 +75,7 @@ pub async fn analyze_block<P: Provider>(provider: P, block_number: u64) {
                 &mut checked_pairs,
                 block_number,
                 &provider,
+                eth_price,
             )
             .await;
         }

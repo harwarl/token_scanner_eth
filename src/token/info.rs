@@ -1,6 +1,5 @@
 use alloy::{
-    primitives::{Address, U256, Uint, b256},
-    providers::Provider,
+primitives::{Address, U256, Uint}, providers::Provider
 };
 
 use crate::utils::{constant::WETH, contracts::IERC20};
@@ -10,7 +9,7 @@ pub async fn get_token_info<P: Provider>(
     pair_address: &Address,
     token0: Address,
     token1: Address,
-) -> (String, Uint<256, 4>, Uint<256, 4>, f64, u8) {
+) -> (String, Uint<256, 4>, Uint<256, 4>, f64, u8, Address) {
     let token = if token0 == WETH { token1 } else { token0 };
 
     // Token Name
@@ -47,6 +46,24 @@ pub async fn get_token_info<P: Provider>(
     // format units
     let divisor = U256::from(10u64).pow(U256::from(decimals));
     let total_supply_formatted = total_supply.to::<u128>() as f64 / divisor.to::<u128>() as f64;
-    
-    ( token_name, contract_balance, total_supply, total_supply_formatted, decimals)
+
+    // IsRenounced
+    let owner = match IERC20::new(token, provider).owner().call().await {
+        Ok(r) => r,
+        Err(_) => {
+            match IERC20::new(token, provider).getOwner().call().await {
+                Ok(r) => r,
+                Err(_) => Address::ZERO
+            }
+        }
+    };
+
+    (
+        token_name,
+        contract_balance,
+        total_supply,
+        total_supply_formatted,
+        decimals,
+        owner
+    )
 }

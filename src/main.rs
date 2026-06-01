@@ -43,6 +43,6 @@ async fn main() {
         tracing::info!("Current ETH Price: ${eth_price:.2}");
 
         // Analyze the block for token transfers and logs
-        scanner::block::analyze_block(&wss_provider, block_number).await;
+        scanner::block::analyze_block(&wss_provider, block_number, eth_price).await;
     }
 }
