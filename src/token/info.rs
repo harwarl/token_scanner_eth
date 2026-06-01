@@ -1,15 +1,18 @@
 use alloy::{
-primitives::{Address, U256, Uint}, providers::Provider
+    primitives::{Address, U256, Uint},
+    providers::Provider,
 };
 
-use crate::utils::{constant::WETH, contracts::IERC20};
+use crate::utils::{
+    constant::{DEAD1, DEAD2, WETH},
+    contracts::IERC20,
+};
 
 pub async fn get_token_info<P: Provider>(
     provider: &P,
-    pair_address: &Address,
     token0: Address,
     token1: Address,
-) -> (String, Uint<256, 4>, Uint<256, 4>, f64, u8, Address) {
+) -> (String, Uint<256, 4>, Uint<256, 4>, f64, u8, Address, bool) {
     let token = if token0 == WETH { token1 } else { token0 };
 
     // Token Name
@@ -50,13 +53,13 @@ pub async fn get_token_info<P: Provider>(
     // IsRenounced
     let owner = match IERC20::new(token, provider).owner().call().await {
         Ok(r) => r,
-        Err(_) => {
-            match IERC20::new(token, provider).getOwner().call().await {
-                Ok(r) => r,
-                Err(_) => Address::ZERO
-            }
-        }
+        Err(_) => match IERC20::new(token, provider).getOwner().call().await {
+            Ok(r) => r,
+            Err(_) => Address::ZERO,
+        },
     };
+
+    let renounced = owner == DEAD1 || owner == DEAD2;
 
     (
         token_name,
@@ -64,6 +67,7 @@ pub async fn get_token_info<P: Provider>(
         total_supply,
         total_supply_formatted,
         decimals,
-        owner
+        owner,
+        renounced,
     )
 }
