@@ -1,5 +1,5 @@
 use alloy::providers::Provider;
-
+use futures_util::StreamExt;
 use crate::config::Config;
 
 pub mod config;
@@ -23,8 +23,17 @@ async fn main() {
     let mut stream = wss_provider.subscribe_blocks().await.unwrap_or_else(|e| {
         tracing::error!("Failed to subscribe to blocks: {e}");
         std::process::exit(1);
-    });
+    }).into_stream();
 
 
     // TODO: Add logic to process new blocks and scan for token transfers
+    while let Some(block) = stream.next().await {
+        let block_number = block.number;
+        tracing::info!("New block received: {}", block_number);
+
+        // TODO: get ETH Price
+
+        // Analyze the block for token transfers and logs
+
+    }
 }
