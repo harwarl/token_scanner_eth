@@ -69,10 +69,6 @@ fn validate_wss_url(url: &str, field: &str) -> Result<(), ConfigError> {
     }
 }
 
-
-
-
-
 #[cfg(test)]
 mod tests {
     use super::*;
