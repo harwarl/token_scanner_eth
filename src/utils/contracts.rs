@@ -1,4 +1,4 @@
-use alloy::sol;
+use alloy::{primitives::Address, sol};
 
 sol! (
     #[allow(missing_docs)]
@@ -17,4 +17,3 @@ sol! (
     IUniswapV2Pair,
     "abi/IUniswapV2Pair.json"
 );
-

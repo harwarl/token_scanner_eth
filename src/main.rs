@@ -1,4 +1,4 @@
-use crate::config::Config;
+use crate::{config::Config, token::market::get_eth_price};
 use alloy::providers::Provider;
 use futures_util::StreamExt;
 
@@ -39,8 +39,11 @@ async fn main() {
         let block_number = block.number;
         tracing::info!("New block received: {}", block_number);
 
-        // TODO: get ETH Price
+        // Get ETh Price
+        let eth_price = get_eth_price(&wss_provider).await;
+        tracing::info!("Current ETH Price: ${eth_price:.2}");
 
         // Analyze the block for token transfers and logs
+        scanner::block::analyze_block(&wss_provider, block_number).await;
     }
 }
