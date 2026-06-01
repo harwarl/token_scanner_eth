@@ -37,7 +37,6 @@ async fn main() {
     // TODO: Add logic to process new blocks and scan for token transfers
     while let Some(block) = stream.next().await {
         let block_number = block.number;
-        tracing::info!("New block received: {}", block_number);
 
         // Get ETh Price
         let eth_price = get_eth_price(&wss_provider).await;

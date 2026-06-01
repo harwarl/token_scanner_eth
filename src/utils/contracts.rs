@@ -1,19 +1,15 @@
 use alloy::{primitives::Address, sol};
 
-sol! (
+sol!(
     #[allow(missing_docs)]
-    #[sol(
-        rpc
-    )]
+    #[sol(rpc)]
     IERC20,
     "abi/IERC_20.json"
 );
 
-sol! (
+sol!(
     #[allow(missing_docs)]
-    #[sol(
-        rpc
-    )]
+    #[sol(rpc)]
     IUniswapV2Pair,
     "abi/IUniswapV2Pair.json"
 );

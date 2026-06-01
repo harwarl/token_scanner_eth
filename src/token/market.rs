@@ -1,6 +1,6 @@
 use alloy::providers::Provider;
 
-use crate::{utils::{constant::WETHUSDTV2PAIR, contracts::IUniswapV2Pair}};
+use crate::utils::{constant::WETHUSDTV2PAIR, contracts::IUniswapV2Pair};
 
 pub async fn get_eth_price<P: Provider>(provider: P) -> f64 {
     let pair = IUniswapV2Pair::new(WETHUSDTV2PAIR, provider);

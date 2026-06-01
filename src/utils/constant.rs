@@ -8,5 +8,3 @@ pub const DEAD2: Address = address!("0x000000000000000000000000000000000000dead"
 pub const TEAMFINANCE: Address = address!("0xe2fe530c047f2d85298b07d9333c05737f1435fb");
 pub const UNICRYPT: Address = address!("0x663A5C229c09b049E36dCc11a9B0d4a8Eb9db214");
 pub const PINKLOCK: Address = address!("0x71B5759d73262FBb223956913ecF4ecC51057641");
-
-

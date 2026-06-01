@@ -37,8 +37,6 @@ impl Config {
             rpc_url_wss,
         })
     }
-
-    
 }
 
 fn validate_url(url: &str, field: &str) -> Result<(), ConfigError> {
