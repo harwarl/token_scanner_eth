@@ -1,10 +1,15 @@
+use crate::config::Config;
 use alloy::providers::Provider;
 use futures_util::StreamExt;
-use crate::config::Config;
 
 pub mod config;
+pub mod etherscan;
 pub mod provider;
+pub mod scanner;
+pub mod telegram;
+pub mod token;
 pub mod types;
+pub mod utils;
 
 #[tokio::main]
 async fn main() {
@@ -18,13 +23,16 @@ async fn main() {
 
     tracing::info!("Starting Token Scanner for ETH");
     let wss_provider = provider::connect_wss(&config.rpc_url_wss).await;
- 
-    tracing::info!("Listening for new blocks");
-    let mut stream = wss_provider.subscribe_blocks().await.unwrap_or_else(|e| {
-        tracing::error!("Failed to subscribe to blocks: {e}");
-        std::process::exit(1);
-    }).into_stream();
 
+    tracing::info!("Listening for new blocks");
+    let mut stream = wss_provider
+        .subscribe_blocks()
+        .await
+        .unwrap_or_else(|e| {
+            tracing::error!("Failed to subscribe to blocks: {e}");
+            std::process::exit(1);
+        })
+        .into_stream();
 
     // TODO: Add logic to process new blocks and scan for token transfers
     while let Some(block) = stream.next().await {
@@ -34,6 +42,5 @@ async fn main() {
         // TODO: get ETH Price
 
         // Analyze the block for token transfers and logs
-
     }
 }
