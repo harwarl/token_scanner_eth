@@ -48,7 +48,6 @@ async fn main() {
 
         tokio::spawn(async move {
             let eth_price = get_eth_price(&provider).await;
-            tracing::info!("Current ETH Price: ${eth_price:.2}");
             scanner::block::analyze_block(&provider, block_number, eth_price).await;
         });
     }

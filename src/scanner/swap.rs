@@ -53,8 +53,6 @@ pub async fn decode_swap<P: Provider>(
             }
         };
 
-        tracing::info!("Pair Tokens: token0: {:?}, token1: {:?}", token0, token1);
-
         let filter = Filter::new()
             .address(pair_address)
             .event_signature(swap_topic)
@@ -85,13 +83,12 @@ pub async fn decode_swap<P: Provider>(
             }
         }
 
-        tracing::info!("Buy count for pair {:?}: {}", pair_address, buy_counts);
-
         if buy_counts < 20 {
             tracing::info!("Not enough buys ({}), skipping...", buy_counts);
             return;
         }
 
         // Get Token Info
+        
     }
 }
