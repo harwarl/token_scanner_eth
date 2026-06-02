@@ -43,24 +43,23 @@ use crate::utils::constant::UNISWAP_FACTORY;
 pub fn get_univ2_pair_address(token_a: &Address, token_b: &Address) -> Address {
     let (token0, token1) = if token_a < token_b { (token_a, token_b) } else { (token_b, token_a) };
 
-    // 3. Calculate Salt
     let mut salt_data = Vec::new();
     salt_data.extend_from_slice(token0.as_slice());
     salt_data.extend_from_slice(token1.as_slice());
     let salt: B256 = keccak256(&salt_data);
 
-    // 4. Init Code Hash (Standard Ethereum Uniswap V2 value)
+    // Init Code Hash (Standard Ethereum Uniswap V2 value)
     let init_code_hash_hex = "96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f";
     let init_code_hash = B256::from_slice(&decode(init_code_hash_hex).unwrap());
 
-    // 5. ABI Encode Packed the CREATE2 parameters
+    // ABI Encode Packed the CREATE2 parameters
     let mut encoded = Vec::new();
     encoded.push(0xff); // 0xff prefix
     encoded.extend_from_slice(UNISWAP_FACTORY.as_slice());
     encoded.extend_from_slice(salt.as_slice());
     encoded.extend_from_slice(init_code_hash.as_slice());
 
-    // 6. Compute final pair address
+    // Compute final pair address
     let hash = keccak256(&encoded);
     let mut pair_address_bytes = [0u8; 20];
     pair_address_bytes.copy_from_slice(&hash[12..32]); // Address is the last 20 bytes of the hash
