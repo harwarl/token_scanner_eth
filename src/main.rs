@@ -2,6 +2,7 @@ use crate::{config::Config, token::market::get_eth_price};
 use alloy::providers::Provider;
 use futures_util::StreamExt;
 
+pub mod LP;
 pub mod config;
 pub mod etherscan;
 pub mod provider;
