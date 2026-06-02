@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 
 use crate::{
+    etherscan::client::EtherscanClient,
     lp::lp_lock::is_lp_locked,
     telegram,
     token::{
@@ -28,6 +29,7 @@ pub async fn decode_swap<P: Provider>(
     provider: &P,
     eth_price: f64,
     bot: &Bot,
+    etherscan_client: &EtherscanClient,
 ) {
     // Check if the hashed set contains the pair address, if it does, skip processing this log to avoid duplicate processing of the same pair in the same block
     if checked_pairs.contains(&pair_address) {
@@ -126,20 +128,33 @@ pub async fn decode_swap<P: Provider>(
         let deployer = get_deployer(provider, &honeypoy_res.pair.creation_tx_hash).await;
         let is_lp_locked = is_lp_locked(&pair_address, provider).await;
 
+        // Etherscan calls
+        let contract_info = etherscan_client
+            .get_contract_info(&token_meta.address)
+            .await;
+        let wallet_info = etherscan_client.get_wallet_info(&deployer).await;
+        let bad_reputation = etherscan_client.check_deployer_reputation(&deployer).await;
+
         let token_info = TokenInfo {
             name: token_meta.name,
             address: token_meta.address,
             total_supply: token_meta.total_supply_formatted,
-            verified: false,
-            lp_lock: is_lp_locked,
+            verified: contract_info.verified,
+            contract_name: contract_info.contract_name,
+            lp_locked: is_lp_locked,
             renounced: token_meta.renounced,
             buy_tax: honeypoy_res.simulation_result.buy_tax,
             sell_tax: honeypoy_res.simulation_result.sell_tax,
             market_cap_usd: market_cap * eth_price,
             honeypot: honeypoy_res.honeypot_result.is_honeypot,
-            deployer: deployer.to_string(),
+            deployer: deployer,
             liquidity_usd: liquidity * eth_price,
-            buy_ratio
+            buy_ratio,
+            deployer_age_days: wallet_info.age_days,
+            is_fresh_wallet: wallet_info.is_fresh_wallet,
+            bad_reputation,
+            buy_count: buy_counts,
+            total_swaps,
         };
 
         // Send the Message to TELEGRAM

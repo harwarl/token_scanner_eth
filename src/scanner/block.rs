@@ -7,11 +7,18 @@ use alloy::{
 use teloxide::Bot;
 
 use crate::{
+    etherscan::client::EtherscanClient,
     scanner,
     utils::{constant::WETH, contracts::IUniswapV2Pair, helpers},
 };
 
-pub async fn analyze_block<P: Provider>(provider: P, block_number: u64, eth_price: f64, bot: &Bot) {
+pub async fn analyze_block<P: Provider>(
+    provider: P,
+    block_number: u64,
+    eth_price: f64,
+    bot: &Bot,
+    etherscan_client: &EtherscanClient,
+) {
     tracing::info!("Analyzing block: {}", block_number);
     let mut checked_pairs: HashSet<Address> = HashSet::new();
 
@@ -72,6 +79,7 @@ pub async fn analyze_block<P: Provider>(provider: P, block_number: u64, eth_pric
                 &provider,
                 eth_price,
                 bot,
+                etherscan_client,
             )
             .await;
         }

@@ -30,7 +30,7 @@ pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo) {
         token_info.total_supply,
         if token_info.verified { "✅" } else { "❌" },
         token_info.liquidity_usd,
-        if token_info.lp_lock { "✅" } else { "❌" },
+        if token_info.lp_locked { "✅" } else { "❌" },
         if token_info.renounced { "✅" } else { "❌" },
         token_info.buy_tax,
         token_info.sell_tax,

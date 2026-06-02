@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{config::Config, token::market::get_eth_price};
+use crate::{config::Config, etherscan::client::EtherscanClient, token::market::get_eth_price};
 use alloy::providers::Provider;
 use futures_util::StreamExt;
 
@@ -36,8 +36,9 @@ async fn main() {
             std::process::exit(1);
         })
         .into_stream();
-
+    
     let provider = Arc::new(wss_provider);
+    let etherscan_client = Arc::new(EtherscanClient::new(config.etherscan_api_key.clone()));
     let bot = config.get_bot();
 
     // Add logic to process new blocks and scan for token transfers
@@ -46,11 +47,12 @@ async fn main() {
         tracing::info!("Block Number: {block_number}");
 
         let provider = Arc::clone(&provider);
+        let etherscan_client = Arc::clone(&etherscan_client);
         let bot = bot.clone();
 
         tokio::spawn(async move {
             let eth_price = get_eth_price(&provider).await;
-            scanner::block::analyze_block(&provider, block_number, eth_price, &bot).await;
+            scanner::block::analyze_block(&provider, block_number, eth_price, &bot, &etherscan_client).await;
         });
     }
 }
