@@ -42,7 +42,7 @@ pub struct HoneyPotResult {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all= "camelCase")]
 pub struct Pair {
-    pub creationTxHash: String
+    pub creation_tx_hash: String
 }
 
 #[derive(Debug, Deserialize)]

@@ -1,6 +1,7 @@
+use std::str::FromStr;
+
 use alloy::{
-    primitives::{Address, U256, Uint},
-    providers::Provider,
+    network::TransactionResponse, primitives::{Address, TxHash, U256, Uint}, providers::Provider
 };
 
 use crate::utils::{
@@ -70,4 +71,18 @@ pub async fn get_token_info<P: Provider>(
         owner,
         renounced,
     )
+}
+
+
+async fn get_deployer<P: Provider>(provider: P, creation_tx_hash: &str) -> Address {
+    let hash = match TxHash::from_str(creation_tx_hash) {
+        Ok(h) => h,
+        Err(_) => return Address::ZERO
+    };
+
+    match provider.get_transaction_by_hash(hash).await {
+        Ok(Some(txn)) => txn.from(),
+        Ok(None) => Address::ZERO,
+        Err(_) => Address::ZERO
+    }
 }
