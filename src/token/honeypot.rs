@@ -4,8 +4,6 @@ use reqwest::Client;
 use crate::types::HoneyPotResponse;
 
 pub async fn get_honey_pot(token: &Address, pair_address: &Address) -> Option<HoneyPotResponse> {
-    let client = Client::new();
-
     let honeypot_url = format!(
         "https://api.honeypot.is/v2/IsHoneypot?address={token}&pair={pair_address}&chainID=1"
     );
