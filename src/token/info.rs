@@ -6,16 +6,19 @@ use alloy::{
     providers::Provider,
 };
 
-use crate::{types::TokenMetaInfo, utils::{
-    constant::{DEAD1, DEAD2, WETH},
-    contracts::IERC20,
-}};
+use crate::{
+    types::TokenMetaInfo,
+    utils::{
+        constant::{DEAD1, DEAD2, WETH},
+        contracts::IERC20,
+    },
+};
 
 pub async fn get_token_info<P: Provider>(
     provider: &P,
     token0: Address,
     token1: Address,
-) -> TokenMetaInfo{
+) -> TokenMetaInfo {
     let token = if token0 == WETH { token1 } else { token0 };
 
     // Token Name
@@ -66,12 +69,12 @@ pub async fn get_token_info<P: Provider>(
 
     TokenMetaInfo {
         name: token_name,
-        address:token,
+        address: token,
         total_supply,
         total_supply_formatted,
         decimals,
         owner,
-        renounced
+        renounced,
     }
 }
 

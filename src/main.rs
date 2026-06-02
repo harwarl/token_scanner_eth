@@ -38,6 +38,7 @@ async fn main() {
         .into_stream();
 
     let provider = Arc::new(wss_provider);
+    let bot = config.get_bot();
 
     // Add logic to process new blocks and scan for token transfers
     while let Some(block) = stream.next().await {
@@ -45,10 +46,11 @@ async fn main() {
         tracing::info!("Block Number: {block_number}");
 
         let provider = Arc::clone(&provider);
+        let bot = bot.clone();
 
         tokio::spawn(async move {
             let eth_price = get_eth_price(&provider).await;
-            scanner::block::analyze_block(&provider, block_number, eth_price).await;
+            scanner::block::analyze_block(&provider, block_number, eth_price, &bot).await;
         });
     }
 }

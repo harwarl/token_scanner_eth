@@ -1,4 +1,5 @@
 use std::env;
+use teloxide::Bot;
 use thiserror::Error;
 use url::Url;
 
@@ -14,6 +15,7 @@ pub enum ConfigError {
 pub struct Config {
     pub rpc_url: String,
     pub rpc_url_wss: String,
+    pub bot: Bot,
 }
 
 impl Config {
@@ -24,18 +26,33 @@ impl Config {
         let rpc_url_wss = env::var("RPC_URL_WSS")
             .map_err(|_| ConfigError::MissingVar("RPC_URL_WSS".to_string()))?;
 
-        Self::new(rpc_url, rpc_url_wss)
+        let bot_token = env::var("TELOXIDE_TOKEN")
+            .map_err(|_| ConfigError::MissingVar("TELOXIDE_TOKEN".to_string()))?;
+
+        Self::new(rpc_url, rpc_url_wss, bot_token)
     }
 
-    pub fn new(rpc_url: String, rpc_url_wss: String) -> Result<Self, ConfigError> {
+    pub fn new(
+        rpc_url: String,
+        rpc_url_wss: String,
+        bot_token: String,
+    ) -> Result<Self, ConfigError> {
         // Validate the Urls
         validate_url(&rpc_url, "RPC_URL")?;
         validate_wss_url(&rpc_url_wss, "RPC_URL_WSS")?;
 
+        // Create Bot Instance
+        let bot = Bot::new(bot_token);
+
         Ok(Self {
             rpc_url,
             rpc_url_wss,
+            bot,
         })
+    }
+
+    pub fn get_bot(self: &Self) -> &Bot {
+        &self.bot
     }
 }
 
@@ -78,6 +95,7 @@ mod tests {
         let config = Config::new(
             "https://mainnet.infura.io/v3/key".to_string(),
             "wss://mainnet.infura.io/ws/v3/key".to_string(),
+            "some_token".to_string(),
         );
         assert!(config.is_ok());
     }
@@ -87,6 +105,7 @@ mod tests {
         let result = Config::new(
             "wss://mainnet.infura.io".to_string(),
             "wss://mainnet.infura.io/ws".to_string(),
+            "some_token".to_string(),
         );
         match result {
             Err(ConfigError::InvalidUrl { field, .. }) => assert_eq!(field, "RPC_URL"),
@@ -99,6 +118,7 @@ mod tests {
         let result = Config::new(
             "https://mainnet.infura.io".to_string(),
             "https://mainnet.infura.io".to_string(),
+            "some_token".to_string(),
         );
         match result {
             Err(ConfigError::InvalidUrl { field, .. }) => assert_eq!(field, "RPC_URL_WSS"),
@@ -111,6 +131,7 @@ mod tests {
         let result = Config::new(
             "not_a_url".to_string(),
             "wss://mainnet.infura.io/ws".to_string(),
+            "some_token".to_string(),
         );
         assert!(result.is_err());
     }
@@ -120,6 +141,7 @@ mod tests {
         let result = Config::new(
             "https://mainnet.infura.io".to_string(),
             "not_a_url".to_string(),
+            "some_token".to_string(),
         );
         assert!(result.is_err());
     }
@@ -129,6 +151,7 @@ mod tests {
         let result = Config::new(
             "http://localhost:8545".to_string(),
             "ws://localhost:8546".to_string(),
+            "some_token".to_string(),
         );
         assert!(result.is_ok());
     }

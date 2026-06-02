@@ -25,7 +25,7 @@ pub struct TokenMetaInfo {
     pub total_supply_formatted: f64,
     pub decimals: u8,
     pub owner: Address,
-    pub renounced: bool
+    pub renounced: bool,
 }
 
 #[derive(Debug, Clone)]

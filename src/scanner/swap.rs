@@ -1,12 +1,24 @@
 use std::collections::HashSet;
 
-use crate::{lp::lp_lock::is_lp_locked, token::{honeypot::get_honey_pot, info::{get_deployer, get_token_info}, liquidity::get_liquidity, market::get_market_cap}, types::TokenInfo, utils::{constant::WETH, contracts::IUniswapV2Pair}};
+use crate::{
+    lp::lp_lock::is_lp_locked,
+    telegram,
+    token::{
+        honeypot::get_honey_pot,
+        info::{get_deployer, get_token_info},
+        liquidity::get_liquidity,
+        market::get_market_cap,
+    },
+    types::TokenInfo,
+    utils::{constant::WETH, contracts::IUniswapV2Pair},
+};
 use alloy::{
     primitives::{Address, U256, b256},
     providers::Provider,
     rpc::types::{Filter, Log},
     sol_types::SolEvent,
 };
+use teloxide::Bot;
 
 pub async fn decode_swap<P: Provider>(
     log: &Log,
@@ -15,6 +27,7 @@ pub async fn decode_swap<P: Provider>(
     block_number: u64,
     provider: &P,
     eth_price: f64,
+    bot: &Bot,
 ) {
     // Check if the hashed set contains the pair address, if it does, skip processing this log to avoid duplicate processing of the same pair in the same block
     if checked_pairs.contains(&pair_address) {
@@ -91,8 +104,17 @@ pub async fn decode_swap<P: Provider>(
         // Get Token Info
         let token_meta = get_token_info(provider, token0, token1).await;
         let liquidity = get_liquidity(provider, &pair_address, token0).await;
-        let market_cap = get_market_cap(provider, token0, token_meta.total_supply, token_meta.decimals, pair_address).await;
-        let honeypoy_res = get_honey_pot(&token_meta.address, &pair_address).await.unwrap();
+        let market_cap = get_market_cap(
+            provider,
+            token0,
+            token_meta.total_supply,
+            token_meta.decimals,
+            pair_address,
+        )
+        .await;
+        let honeypoy_res = get_honey_pot(&token_meta.address, &pair_address)
+            .await
+            .unwrap();
         let deployer = get_deployer(provider, &honeypoy_res.pair.creation_tx_hash).await;
         let is_lp_locked = is_lp_locked(&pair_address, provider).await;
 
@@ -108,9 +130,10 @@ pub async fn decode_swap<P: Provider>(
             market_cap_usd: market_cap * eth_price,
             honeypot: honeypoy_res.honeypot_result.is_honeypot,
             deployer: deployer.to_string(),
-            liquidity_usd: liquidity * eth_price
+            liquidity_usd: liquidity * eth_price,
         };
 
-        // SEND MESSAGE TO TG passing in token_info
+        // Send the Message to TELEGRAM
+        telegram::bot::send_tg_message(bot, token_info).await;
     }
 }
