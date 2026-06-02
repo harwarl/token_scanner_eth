@@ -1,12 +1,11 @@
-use alloy::primitives::U256;
-use ethers::abi::Address;
-use serde::{Deserialize};
+use alloy::primitives::{Address, U256};
+use serde::Deserialize;
 
 #[derive(Debug, Clone)]
 pub struct TokenInfo {
     pub name: String,
     pub address: Address,
-    pub total_supply: U256,
+    pub total_supply: f64,
     pub verified: bool,
     pub liquidity_usd: f64,
     pub lp_lock: bool,
@@ -16,6 +15,17 @@ pub struct TokenInfo {
     pub market_cap_usd: f64,
     pub honeypot: bool,
     pub deployer: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct TokenMetaInfo {
+    pub name: String,
+    pub address: Address,
+    pub total_supply: U256,
+    pub total_supply_formatted: f64,
+    pub decimals: u8,
+    pub owner: Address,
+    pub renounced: bool
 }
 
 #[derive(Debug, Clone)]

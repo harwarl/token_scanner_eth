@@ -6,7 +6,6 @@ pub async fn get_liquidity<P: Provider>(
     provider: &P,
     pair_address: &Address,
     token0: Address,
-    eth_price: f64,
 ) -> f64 {
     let pair = IUniswapV2Pair::new(*pair_address, provider);
     let reserves = match pair.getReserves().call().await {
@@ -23,7 +22,5 @@ pub async fn get_liquidity<P: Provider>(
         reserves._reserve1.to::<u128>() as f64 / 1e18
     };
 
-    let liquidity_usd = weth_reserve * 2.0 * eth_price;
-
-    liquidity_usd
+    weth_reserve * 2.0
 }

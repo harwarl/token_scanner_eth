@@ -2,20 +2,20 @@ use std::str::FromStr;
 
 use alloy::{
     network::TransactionResponse,
-    primitives::{Address, TxHash, U256, Uint},
+    primitives::{Address, TxHash, U256},
     providers::Provider,
 };
 
-use crate::utils::{
+use crate::{types::TokenMetaInfo, utils::{
     constant::{DEAD1, DEAD2, WETH},
     contracts::IERC20,
-};
+}};
 
 pub async fn get_token_info<P: Provider>(
     provider: &P,
     token0: Address,
     token1: Address,
-) -> (String, Uint<256, 4>, Uint<256, 4>, f64, u8, Address, bool) {
+) -> TokenMetaInfo{
     let token = if token0 == WETH { token1 } else { token0 };
 
     // Token Name
@@ -26,12 +26,12 @@ pub async fn get_token_info<P: Provider>(
         .unwrap_or_else(|_| "Unknown".to_string());
 
     // Total Balance
-    let contract_balance = IERC20::new(token, provider)
-        .balanceOf(token)
-        .call()
-        .await
-        .map(|r| r)
-        .unwrap_or(U256::ZERO);
+    // let contract_balance = IERC20::new(token, provider)
+    //     .balanceOf(token)
+    //     .call()
+    //     .await
+    //     .map(|r| r)
+    //     .unwrap_or(U256::ZERO);
 
     // Total Supply
     let total_supply = IERC20::new(token, provider)
@@ -64,15 +64,15 @@ pub async fn get_token_info<P: Provider>(
 
     let renounced = owner == DEAD1 || owner == DEAD2;
 
-    (
-        token_name,
-        contract_balance,
+    TokenMetaInfo {
+        name: token_name,
+        address:token,
         total_supply,
         total_supply_formatted,
         decimals,
         owner,
-        renounced,
-    )
+        renounced
+    }
 }
 
 pub async fn get_deployer<P: Provider>(provider: P, creation_tx_hash: &str) -> Address {

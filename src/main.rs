@@ -37,7 +37,7 @@ async fn main() {
         })
         .into_stream();
 
-        let provider = Arc::new(wss_provider);
+    let provider = Arc::new(wss_provider);
 
     // Add logic to process new blocks and scan for token transfers
     while let Some(block) = stream.next().await {

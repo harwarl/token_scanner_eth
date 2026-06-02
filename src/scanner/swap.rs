@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::utils::{constant::WETH, contracts::IUniswapV2Pair};
+use crate::{lp::lp_lock::is_lp_locked, token::{honeypot::get_honey_pot, info::{get_deployer, get_token_info}, liquidity::get_liquidity, market::get_market_cap}, types::TokenInfo, utils::{constant::WETH, contracts::IUniswapV2Pair}};
 use alloy::{
     primitives::{Address, U256, b256},
     providers::Provider,
@@ -89,6 +89,28 @@ pub async fn decode_swap<P: Provider>(
         }
 
         // Get Token Info
-        
+        let token_meta = get_token_info(provider, token0, token1).await;
+        let liquidity = get_liquidity(provider, &pair_address, token0).await;
+        let market_cap = get_market_cap(provider, token0, token_meta.total_supply, token_meta.decimals, pair_address).await;
+        let honeypoy_res = get_honey_pot(&token_meta.address, &pair_address).await.unwrap();
+        let deployer = get_deployer(provider, &honeypoy_res.pair.creation_tx_hash).await;
+        let is_lp_locked = is_lp_locked(&pair_address, provider).await;
+
+        let token_info = TokenInfo {
+            name: token_meta.name,
+            address: token_meta.address,
+            total_supply: token_meta.total_supply_formatted,
+            verified: false,
+            lp_lock: is_lp_locked,
+            renounced: token_meta.renounced,
+            buy_tax: honeypoy_res.simulation_result.buy_tax,
+            sell_tax: honeypoy_res.simulation_result.sell_tax,
+            market_cap_usd: market_cap * eth_price,
+            honeypot: honeypoy_res.honeypot_result.is_honeypot,
+            deployer: deployer.to_string(),
+            liquidity_usd: liquidity * eth_price
+        };
+
+        // SEND MESSAGE TO TG passing in token_info
     }
 }

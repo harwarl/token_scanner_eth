@@ -21,17 +21,17 @@ use alloy::primitives::{Address, B256, keccak256};
 
 //     let salt = keccak256(&[token0.as_slice(), token1.as_slice()].concat());
 
-    // let pair = keccak256(
-    //     &[
-    //         &[0xff],
-    //         factory.as_slice(),
-    //         salt.as_slice(),
-    //         init_code_hash.as_slice(),
-    //     ]
-    //     .concat(),
-    // );
+// let pair = keccak256(
+//     &[
+//         &[0xff],
+//         factory.as_slice(),
+//         salt.as_slice(),
+//         init_code_hash.as_slice(),
+//     ]
+//     .concat(),
+// );
 
-    // Address::from_slice(&pair[12..])
+// Address::from_slice(&pair[12..])
 
 //     factory.create2(salt, init_code_hash)
 // }
@@ -41,7 +41,11 @@ use hex::decode;
 use crate::utils::constant::UNISWAP_FACTORY;
 
 pub fn get_univ2_pair_address(token_a: &Address, token_b: &Address) -> Address {
-    let (token0, token1) = if token_a < token_b { (token_a, token_b) } else { (token_b, token_a) };
+    let (token0, token1) = if token_a < token_b {
+        (token_a, token_b)
+    } else {
+        (token_b, token_a)
+    };
 
     let mut salt_data = Vec::new();
     salt_data.extend_from_slice(token0.as_slice());
@@ -67,7 +71,6 @@ pub fn get_univ2_pair_address(token_a: &Address, token_b: &Address) -> Address {
 
     pair_address
 }
-
 
 pub fn address_match(token_a: Address, token_b: Address) -> bool {
     token_a.to_checksum(None).to_lowercase() == token_b.to_checksum(None).to_lowercase()
