@@ -52,16 +52,16 @@ pub async fn analyze_block<P: Provider>(provider: P, block_number: u64, eth_pric
 
             // compair the log address with the computed pair address to filter out irrelevant logs
             let computed_pair_address = helpers::get_univ2_pair_address(&token0, &token1);
-            tracing::info!("Computed Pair Address: {computed_pair_address}, Pair: {pair_address}");
 
             if computed_pair_address != pair_address {
                 continue;
             }
 
-            if token0 != WETH || token1 != WETH {
+            if token0 != WETH && token1 != WETH {
                 continue;
             }
 
+            println!("Decoding Swap...");
             // Decode as a Swap Event from Uniswap V2 Pair
             scanner::swap::decode_swap(
                 log,

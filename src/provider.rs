@@ -7,7 +7,7 @@ use alloy::providers::{Provider, ProviderBuilder, WsConnect};
 ///
 /// # Panics
 /// Panics if the WebSocket connection cannot be established
-pub async fn connect_wss(rpc_url_wss: &str) -> impl Provider {
+pub async fn connect_wss(rpc_url_wss: String) -> impl Provider {
     let ws = WsConnect::new(rpc_url_wss);
     ProviderBuilder::new()
         .connect_ws(ws)
