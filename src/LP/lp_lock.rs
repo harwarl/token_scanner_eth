@@ -51,5 +51,5 @@ pub async fn is_lp_locked<P: Provider>(pair_address: &Address, provider: P) -> b
 
     let locked_pct = total_locked * U256::from(100) / total_supply;
 
-    return locked_pct > U256::from(LOCK_THRESHOLD)
+    return locked_pct > U256::from(LOCK_THRESHOLD);
 }

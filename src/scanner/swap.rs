@@ -1,9 +1,6 @@
 use std::collections::HashSet;
 
-use crate::utils::{
-    constant::WETH,
-    contracts::{IERC20, IUniswapV2Pair},
-};
+use crate::utils::{constant::WETH, contracts::IUniswapV2Pair};
 use alloy::{
     primitives::{Address, U256, b256},
     providers::Provider,
@@ -95,6 +92,6 @@ pub async fn decode_swap<P: Provider>(
             return;
         }
 
-        // Get Token
+        // Get Token Info
     }
 }

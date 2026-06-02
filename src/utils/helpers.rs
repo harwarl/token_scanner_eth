@@ -1,7 +1,4 @@
-use alloy::{
-    dyn_abi::abi::token,
-    primitives::{Address, B256, keccak256},
-};
+use alloy::primitives::{Address, B256, keccak256};
 
 pub fn get_univ2_pair_address(token_a: &Address, token_b: &Address) -> Address {
     let (token0, token1) = if token_a < token_b {

@@ -1,5 +1,4 @@
 use alloy::primitives::Address;
-use reqwest::Client;
 
 use crate::types::HoneyPotResponse;
 

@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use alloy::{
     network::TransactionResponse, primitives::Address, providers::Provider,
-    rpc::types::TransactionReceipt, sol_types::SolEvent,
+    rpc::types::TransactionReceipt,
 };
 
 use crate::{

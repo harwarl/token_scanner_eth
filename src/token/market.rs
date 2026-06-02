@@ -22,7 +22,6 @@ pub async fn get_eth_price<P: Provider>(provider: P) -> f64 {
 pub async fn get_market_cap<P: Provider>(
     provider: &P,
     token0: Address,
-    token1: Address,
     total_supply: Uint<256, 4>,
     decimals: u8,
     pair_address: Address,

@@ -1,6 +1,6 @@
 use alloy::primitives::U256;
 use ethers::abi::Address;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize};
 
 #[derive(Debug, Clone)]
 pub struct TokenInfo {

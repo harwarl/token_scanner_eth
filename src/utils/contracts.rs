@@ -1,4 +1,4 @@
-use alloy::{primitives::Address, sol};
+use alloy::sol;
 
 sol!(
     #[allow(missing_docs)]
