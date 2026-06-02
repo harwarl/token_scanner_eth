@@ -1,5 +1,6 @@
 use alloy::primitives::U256;
 use ethers::abi::Address;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone)]
 pub struct TokenInfo {
@@ -23,4 +24,22 @@ pub struct SwapInfo {
     pub token0: Address,
     pub token1: Address,
     pub buy_count: u32,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct SimulationResult {
+    pub buy_tax: f64,
+    pub sell_tax: f64,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct HoneyPotResult {
+    pub is_honey_pot: bool,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct HoneyPotResponse {
+    pub simulation_success: bool,
+    pub simulation_result: SimulationResult,
+    pub honeypot_result: HoneyPotResult,
 }

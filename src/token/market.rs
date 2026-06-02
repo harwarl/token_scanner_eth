@@ -26,7 +26,7 @@ pub async fn get_market_cap<P: Provider>(
     total_supply: Uint<256, 4>,
     decimals: u8,
     pair_address: Address,
-    eth_price: f64
+    eth_price: f64,
 ) -> f64 {
     let pair = IUniswapV2Pair::new(pair_address, provider);
 
@@ -50,7 +50,6 @@ pub async fn get_market_cap<P: Provider>(
     let total_supply_f64 = total_supply.to::<u128>() as f64 / divisor.to::<u128>() as f64;
     let token_reserve_f64 = token_reserve.to::<u128>() as f64 / divisor.to::<u128>() as f64;
     let weth_reserve_f64 = weth_reserve.to::<u128>() as f64 / 1e18;
-
 
     let market_cap = total_supply_f64 * weth_reserve_f64 / token_reserve_f64;
 
