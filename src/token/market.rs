@@ -38,8 +38,6 @@ pub async fn get_market_cap<P: Provider>(
         }
     };
 
-    let token = if token0 == WETH { token1 } else { token0 };
-
     let (weth_reserve, token_reserve) = if token0 == WETH {
         (reserves._reserve0, reserves._reserve1)
     } else {

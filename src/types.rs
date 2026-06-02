@@ -27,19 +27,29 @@ pub struct SwapInfo {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all= "camelCase")]
 pub struct SimulationResult {
     pub buy_tax: f64,
     pub sell_tax: f64,
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all= "camelCase")]
 pub struct HoneyPotResult {
-    pub is_honey_pot: bool,
+    pub is_honeypot: bool,
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all= "camelCase")]
+pub struct Pair {
+    pub creationTxHash: String
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all= "camelCase")]
 pub struct HoneyPotResponse {
     pub simulation_success: bool,
     pub simulation_result: SimulationResult,
     pub honeypot_result: HoneyPotResult,
+    pub pair: Pair
 }
