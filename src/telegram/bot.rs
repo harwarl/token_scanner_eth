@@ -1,5 +1,8 @@
 use teloxide::{
-    Bot, payloads::SendMessageSetters, requests::Requester, types::{ChatId, InlineKeyboardButton, InlineKeyboardMarkup, ParseMode}
+    Bot,
+    payloads::SendMessageSetters,
+    requests::Requester,
+    types::{ChatId, InlineKeyboardButton, InlineKeyboardMarkup, ParseMode},
 };
 use url::Url;
 

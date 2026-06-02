@@ -15,6 +15,7 @@ pub struct TokenInfo {
     pub market_cap_usd: f64,
     pub honeypot: bool,
     pub deployer: String,
+    pub buy_ratio: f64
 }
 
 #[derive(Debug, Clone)]

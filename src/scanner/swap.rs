@@ -81,9 +81,11 @@ pub async fn decode_swap<P: Provider>(
         };
 
         let mut buy_counts = 0u32;
+        let mut total_swaps = 0u32;
 
         for past_log in logs {
             if let Ok(past_swap_event) = IUniswapV2Pair::Swap::decode_log(past_log.inner.as_ref()) {
+                total_swaps += 1;
                 let swap_direction = if past_swap_event.amount1Out == U256::ZERO {
                     if token0 == WETH { 1 } else { 0 }
                 } else {
@@ -97,9 +99,15 @@ pub async fn decode_swap<P: Provider>(
         }
 
         if buy_counts < 20 {
-            tracing::info!("Not enough buys ({}), skipping...", buy_counts);
             return;
         }
+
+        // Buy Pressure Ratio
+        let buy_ratio = if total_swaps > 0 {
+            buy_counts as f64 / total_swaps as f64
+        } else {
+            0.0
+        };
 
         // Get Token Info
         let token_meta = get_token_info(provider, token0, token1).await;
@@ -131,6 +139,7 @@ pub async fn decode_swap<P: Provider>(
             honeypot: honeypoy_res.honeypot_result.is_honeypot,
             deployer: deployer.to_string(),
             liquidity_usd: liquidity * eth_price,
+            buy_ratio
         };
 
         // Send the Message to TELEGRAM
