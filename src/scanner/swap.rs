@@ -36,7 +36,7 @@ pub async fn decode_swap<P: Provider>(
         return;
     };
 
-    if let Ok(swap_event) = IUniswapV2Pair::Swap::decode_log(log.inner.as_ref()) {
+    if let Ok(_swap_event) = IUniswapV2Pair::Swap::decode_log(log.inner.as_ref()) {
         checked_pairs.insert(pair_address);
 
         let swap_topic =
@@ -65,7 +65,7 @@ pub async fn decode_swap<P: Provider>(
 
         let logs = match provider.get_logs(&filter).await {
             Ok(logs) => logs,
-            Err(e) => {
+            Err(_) => {
                 return;
             }
         };
@@ -102,6 +102,7 @@ pub async fn decode_swap<P: Provider>(
             }
         }
 
+        tracing::info!("Buy Counts: {buy_counts}");
         if buy_counts < 20 {
             return;
         }
@@ -137,6 +138,20 @@ pub async fn decode_swap<P: Provider>(
         let wallet_info = etherscan_client.get_wallet_info(&deployer).await;
         let bad_reputation = etherscan_client.check_deployer_reputation(&deployer).await;
 
+        let liquidity_usd = liquidity * eth_price;
+        let marketcap_usd = market_cap * eth_price;
+
+        // More Filters
+        if unique_buyers.len() < 2 {
+            return;
+        } // at least 2 different wallets
+        if volume_usd < 500.0 {
+            return;
+        } // at least $500 volume
+        if liquidity_usd < 5000.0 {
+            return;
+        } // at least $5k liquidity
+
         let token_info = TokenInfo {
             name: token_meta.name,
             address: token_meta.address,
@@ -147,7 +162,7 @@ pub async fn decode_swap<P: Provider>(
             renounced: token_meta.renounced,
             buy_tax: honeypoy_res.simulation_result.buy_tax,
             sell_tax: honeypoy_res.simulation_result.sell_tax,
-            market_cap_usd: market_cap * eth_price,
+            market_cap_usd: marketcap_usd,
             honeypot: honeypoy_res.honeypot_result.is_honeypot,
             deployer: deployer,
             liquidity_usd: liquidity * eth_price,

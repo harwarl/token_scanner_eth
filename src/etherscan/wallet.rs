@@ -2,9 +2,7 @@ use alloy::primitives::Address;
 
 use crate::{
     etherscan::client::EtherscanClient,
-    types::{
-        ContractCreation, ContractInfo, EtherscanResponse, SourceCode, Transaction, WalletInfo,
-    },
+    types::{EtherscanResponse, Transaction, WalletInfo},
 };
 
 impl EtherscanClient {
@@ -76,8 +74,12 @@ impl EtherscanClient {
 
     /// Gets full wallet info — age, deployed contracts, fresh wallet flag
     pub async fn get_wallet_info(&self, deployer: &Address) -> WalletInfo {
+        println!("Getting Wallet Info: {deployer}");
         let age_days = self.get_wallet_age_days(deployer).await.unwrap_or(0);
         let deployed_contracts = self.get_deployed_contracts(deployer).await;
+
+        println!("Age_days: {age_days:}");
+        println!("Deployed_contracts: {deployed_contracts:?}");
 
         WalletInfo {
             is_fresh_wallet: age_days < 30,
@@ -95,7 +97,8 @@ impl EtherscanClient {
             return false;
         }
 
-        // Check each deployed contract — if any is a known honeypot, flag the deployer
+        let mut unverified = 0;
+
         for contract in &contracts {
             let contract_str = contract.to_string();
             let params = [
@@ -104,20 +107,23 @@ impl EtherscanClient {
                 ("address", contract_str.as_str()),
             ];
 
-            // Unverified contracts from this deployer are a red flag
             if let Some(res) = self.get::<serde_json::Value>(&params).await {
                 let source = res["result"][0]["SourceCode"].as_str().unwrap_or("");
                 if source.is_empty() {
-                    tracing::warn!(
-                        "Deployer {:?} has unverified contract {:?}",
-                        deployer,
-                        contract
-                    );
-                    return true;
+                    unverified += 1;
                 }
             }
         }
 
-        false
+        let total = contracts.len();
+        let unverified_ratio = unverified as f64 / total as f64;
+
+        tracing::info!(
+            "Deployer {deployer:?}: {unverified}/{total} contracts unverified ({:.0}%)",
+            unverified_ratio * 100.0
+        );
+
+        // Flag if more than 50% of contracts are unverified
+        unverified_ratio > 0.5
     }
 }

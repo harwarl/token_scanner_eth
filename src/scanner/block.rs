@@ -19,7 +19,7 @@ pub async fn analyze_block<P: Provider>(
     bot: &Bot,
     etherscan_client: &EtherscanClient,
 ) {
-    tracing::info!("Analyzing block: {}", block_number);
+    // tracing::info!("Analyzing block: {}", block_number);
     let mut checked_pairs: HashSet<Address> = HashSet::new();
 
     let block = provider
