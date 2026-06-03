@@ -88,18 +88,19 @@ pub fn format_number(n: f64) -> String {
     }
 }
 
-pub fn calculate_volatility(changes: &[f64]) -> f64 {
-    let n = changes.len() as f64;
-    let mean = changes.iter().sum::<f64>() / n;
-    let variance = changes.iter().map(|x| (x - mean).powi(2)).sum::<f64>() / n;
-    variance.sqrt()
+pub fn calculate_volatility(volume_24h: f64, liquidity_usd: f64) -> f64 {
+    if liquidity_usd == 0.0 {
+        return 0.0;
+    }
+    (volume_24h / liquidity_usd) * 100.0
 }
 
 pub fn volatility_label(v: f64) -> &'static str {
     match v {
-        v if v < 5.0 => "🟢 Low",
-        v if v < 20.0 => "🟡 Medium",
-        _ => "🔴 High",
+        v if v < 100.0  => "🟢 Low",
+        v if v < 300.0  => "🟡 Medium",
+        v if v < 1000.0 => "🟠 High",
+        _               => "🔴 Extreme",
     }
 }
 

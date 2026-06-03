@@ -145,12 +145,7 @@ pub async fn decode_swap<P: Provider>(
         };
 
         // Volatility
-        let volatility = calculate_volatility(&[
-            dex_data.price_change_5m,
-            dex_data.price_change_1h,
-            dex_data.price_change_6h,
-            dex_data.price_change_24h,
-        ]);
+        let volatility = calculate_volatility(dex_data.vol_24h, dex_data.liquidity_usd);
 
         // // More Filters
         // if unique_buyers.len() < 2 {

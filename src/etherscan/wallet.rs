@@ -74,12 +74,8 @@ impl EtherscanClient {
 
     /// Gets full wallet info — age, deployed contracts, fresh wallet flag
     pub async fn get_wallet_info(&self, deployer: &Address) -> WalletInfo {
-        println!("Getting Wallet Info: {deployer}");
         let age_days = self.get_wallet_age_days(deployer).await.unwrap_or(0);
         let deployed_contracts = self.get_deployed_contracts(deployer).await;
-
-        println!("Age_days: {age_days:}");
-        println!("Deployed_contracts: {deployed_contracts:?}");
 
         WalletInfo {
             is_fresh_wallet: age_days < 30,
