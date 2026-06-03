@@ -76,6 +76,18 @@ pub fn address_match(token_a: Address, token_b: Address) -> bool {
     token_a.to_checksum(None).to_lowercase() == token_b.to_checksum(None).to_lowercase()
 }
 
+pub fn format_number(n: f64) -> String {
+    if n >= 1_000_000_000.0 {
+        format!("{:.2}B", n / 1_000_000_000.0)
+    } else if n >= 1_000_000.0 {
+        format!("{:.2}M", n / 1_000_000.0)
+    } else if n >= 1_000.0 {
+        format!("{:.2}K", n / 1_000.0)
+    } else {
+        format!("{:.2}", n)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

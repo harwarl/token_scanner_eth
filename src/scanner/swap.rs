@@ -72,10 +72,24 @@ pub async fn decode_swap<P: Provider>(
 
         let mut buy_counts = 0u32;
         let mut total_swaps = 0u32;
+        let mut unique_buyers: HashSet<Address> = HashSet::new();
+        let mut volume_usd = 0.0f64;
 
         for past_log in logs {
             if let Ok(past_swap_event) = IUniswapV2Pair::Swap::decode_log(past_log.inner.as_ref()) {
                 total_swaps += 1;
+
+                // Track Unique buyers via sender field
+                unique_buyers.insert(past_swap_event.sender);
+
+                // Sum WETH volume
+                let weth_in = if token0 == WETH {
+                    past_swap_event.amount0In.to::<u128>() as f64 / 1e18
+                } else {
+                    past_swap_event.amount1In.to::<u128>() as f64 / 1e18
+                };
+                volume_usd += weth_in * eth_price;
+
                 let swap_direction = if past_swap_event.amount1Out == U256::ZERO {
                     if token0 == WETH { 1 } else { 0 }
                 } else {
@@ -143,9 +157,10 @@ pub async fn decode_swap<P: Provider>(
             bad_reputation,
             buy_count: buy_counts,
             total_swaps,
+            mcap_to_liq_ratio: market_cap / liquidity,
+            unique_buyers_count: unique_buyers.len() as u32,
+            volume_usd: volume_usd,
         };
-
-        println!("Token Info: {token_info:?}");
 
         // Send the Message to TELEGRAM
         telegram::bot::send_tg_message(bot, token_info).await;

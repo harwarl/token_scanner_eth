@@ -22,6 +22,9 @@ pub struct TokenInfo {
     pub is_fresh_wallet: bool,
     pub bad_reputation: bool,
     pub contract_name: String,
+    pub mcap_to_liq_ratio: f64,
+    pub unique_buyers_count: u32,
+    pub volume_usd: f64,
 }
 
 #[derive(Debug, Clone)]
