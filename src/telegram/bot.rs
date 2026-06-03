@@ -6,7 +6,10 @@ use teloxide::{
 };
 use url::Url;
 
-use crate::{types::TokenInfo, utils::helpers::format_number};
+use crate::{
+    types::TokenInfo,
+    utils::helpers::{format_number, volatility_label},
+};
 
 pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo) {
     let message = format!(
@@ -14,6 +17,7 @@ pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo) {
     \n\
     🏆 MCap: <b>${mcap}</b> • 💧 Liq: <b>${liq}</b> • 📊 M/L: <b>{ml:.2}x</b>\n\
     💵 Price: <b>${price:.8}</b> • 5m: <b>{pc5m:+.1}%</b> • 1h: <b>{pc1h:+.1}%</b>\n\
+    📉 Volatility: <b>{vol_label}</b> ({volatility:.1}%)\n\
     🎎 Supply: {supply}\n\
     \n\
     📊 <b>Volume</b>\n\
@@ -38,7 +42,7 @@ pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo) {
     <a href=\"https://www.dextools.io/app/en/ether/pair-explorer/{address}\">Dextools</a> • \
     <a href=\"https://dexscreener.com/ethereum/{address}\">DexScreener</a> • \
     <a href=\"https://dexspy.io/eth/token/{address}\">DexSpy</a> • \
-    <a href=\"https://www.dexview.com/eth/{address}\">DexView</a> •  \
+    <a href=\"https://www.dexview.com/eth/{address}\">DexView</a> • \
     <a href=\"https://x.com/search?q=%24{name}+OR+{address}&src=typed_query&f=live\">𝕏</a>",
         name = token_info.name,
         address = token_info.address,
@@ -48,6 +52,8 @@ pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo) {
         price = token_info.price_usd,
         pc5m = token_info.price_change_5m,
         pc1h = token_info.price_change_1h,
+        vol_label = volatility_label(token_info.volatility),
+        volatility = token_info.volatility,
         supply = format_number(token_info.total_supply),
         v5m = format_number(token_info.volume_5m),
         v1h = format_number(token_info.volume_1h),

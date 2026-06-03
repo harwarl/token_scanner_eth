@@ -44,6 +44,9 @@ pub struct TokenInfo {
     pub price_usd: f64,
     pub price_change_5m: f64,
     pub price_change_1h: f64,
+
+    // Volatility
+    pub volatility: f64,
 }
 
 #[derive(Debug, Clone)]
@@ -167,5 +170,7 @@ pub struct DexscreenerVolume {
     pub sells_24h: u32,
     pub price_change_5m: f64,
     pub price_change_1h: f64,
+    pub price_change_6h: f64,
+    pub price_change_24h: f64,
     pub holder_count: u64,
 }

@@ -10,7 +10,7 @@ use crate::{
         info::{get_deployer, get_token_info},
     },
     types::TokenInfo,
-    utils::{constant::WETH, contracts::IUniswapV2Pair},
+    utils::{constant::WETH, contracts::IUniswapV2Pair, helpers::calculate_volatility},
 };
 use alloy::{
     primitives::{Address, U256, b256},
@@ -135,8 +135,7 @@ pub async fn decode_swap<P: Provider>(
         let bad_reputation = etherscan_client.check_deployer_reputation(&deployer).await;
         // let holder_count = etherscan_client.get_holder_count(&token_meta.address).await;
 
-        // let liquidity_usd = liquidity * eth_price;
-        // let marketcap_usd = market_cap * eth_price;
+        // Get Prices
         let liquidity_usd = dex_data.liquidity_usd;
         let marketcap_usd = dex_data.market_cap;
         let mcap_to_liq_ratio = if liquidity_usd > 0.0 {
@@ -144,6 +143,14 @@ pub async fn decode_swap<P: Provider>(
         } else {
             0.0
         };
+
+        // Volatility
+        let volatility = calculate_volatility(&[
+            dex_data.price_change_5m,
+            dex_data.price_change_1h,
+            dex_data.price_change_6h,
+            dex_data.price_change_24h,
+        ]);
 
         // // More Filters
         // if unique_buyers.len() < 2 {
@@ -195,6 +202,7 @@ pub async fn decode_swap<P: Provider>(
             price_usd: dex_data.price_usd,
             price_change_5m: dex_data.price_change_5m,
             price_change_1h: dex_data.price_change_1h,
+            volatility,
         };
 
         // Send the Message to TELEGRAM

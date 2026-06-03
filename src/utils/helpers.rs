@@ -88,6 +88,21 @@ pub fn format_number(n: f64) -> String {
     }
 }
 
+pub fn calculate_volatility(changes: &[f64]) -> f64 {
+    let n = changes.len() as f64;
+    let mean = changes.iter().sum::<f64>() / n;
+    let variance = changes.iter().map(|x| (x - mean).powi(2)).sum::<f64>() / n;
+    variance.sqrt()
+}
+
+pub fn volatility_label(v: f64) -> &'static str {
+    match v {
+        v if v < 5.0 => "🟢 Low",
+        v if v < 20.0 => "🟡 Medium",
+        _ => "🔴 High",
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

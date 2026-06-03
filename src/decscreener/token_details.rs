@@ -32,6 +32,8 @@ pub async fn get_dexscreener_data(pair_address: &Address) -> Option<DexscreenerV
         sells_24h: pair["txns"]["h24"]["sells"].as_u64().unwrap_or(0) as u32,
         price_change_5m: pair["priceChange"]["m5"].as_f64().unwrap_or(0.0),
         price_change_1h: pair["priceChange"]["h1"].as_f64().unwrap_or(0.0),
+        price_change_6h: pair["priceChange"]["h6"].as_f64().unwrap_or(0.0),
+        price_change_24h: pair["priceChange"]["h24"].as_f64().unwrap_or(0.0),
         holder_count: pair["info"]["holders"].as_u64().unwrap_or(0),
     })
 }
