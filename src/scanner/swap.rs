@@ -33,19 +33,10 @@ pub async fn decode_swap<P: Provider>(
 ) {
     // Check if the hashed set contains the pair address, if it does, skip processing this log to avoid duplicate processing of the same pair in the same block
     if checked_pairs.contains(&pair_address) {
-        tracing::info!("Already processed this pair in the current block, skipping...");
         return;
-    }
+    };
 
     if let Ok(swap_event) = IUniswapV2Pair::Swap::decode_log(log.inner.as_ref()) {
-        tracing::info!(
-            "Decoded Swap Event: Pair: {:?}, Amount0In: {}, Amount1In: {}, Amount0Out: {}, Amount1Out: {}",
-            pair_address,
-            swap_event.amount0In,
-            swap_event.amount1In,
-            swap_event.amount0Out,
-            swap_event.amount1Out
-        );
         checked_pairs.insert(pair_address);
 
         let swap_topic =
@@ -55,7 +46,6 @@ pub async fn decode_swap<P: Provider>(
         let token0 = match pair.token0().call().await {
             Ok(t) => t,
             Err(_) => {
-                tracing::error!("Failed to get token0 for pair: {:?}", pair_address);
                 return;
             }
         };
@@ -63,7 +53,6 @@ pub async fn decode_swap<P: Provider>(
         let token1 = match pair.token1().call().await {
             Ok(t) => t,
             Err(_) => {
-                tracing::error!("Failed to get token1 for pair: {:?}", pair_address);
                 return;
             }
         };
@@ -77,7 +66,6 @@ pub async fn decode_swap<P: Provider>(
         let logs = match provider.get_logs(&filter).await {
             Ok(logs) => logs,
             Err(e) => {
-                tracing::error!("Failed to fetch logs for pair {:?}: {}", pair_address, e);
                 return;
             }
         };
@@ -156,6 +144,8 @@ pub async fn decode_swap<P: Provider>(
             buy_count: buy_counts,
             total_swaps,
         };
+
+        println!("Token Info: {token_info:?}");
 
         // Send the Message to TELEGRAM
         telegram::bot::send_tg_message(bot, token_info).await;

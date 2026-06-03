@@ -69,7 +69,6 @@ pub async fn analyze_block<P: Provider>(
                 continue;
             }
 
-            println!("Decoding Swap...");
             // Decode as a Swap Event from Uniswap V2 Pair
             scanner::swap::decode_swap(
                 log,

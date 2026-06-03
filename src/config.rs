@@ -16,7 +16,7 @@ pub struct Config {
     pub rpc_url: String,
     pub rpc_url_wss: String,
     pub bot: Bot,
-    pub etherscan_api_key: String
+    pub etherscan_api_key: String,
 }
 
 impl Config {
@@ -40,7 +40,7 @@ impl Config {
         rpc_url: String,
         rpc_url_wss: String,
         bot_token: String,
-        etherscan_api_key: String
+        etherscan_api_key: String,
     ) -> Result<Self, ConfigError> {
         // Validate the Urls
         validate_url(&rpc_url, "RPC_URL")?;
@@ -53,7 +53,7 @@ impl Config {
             rpc_url,
             rpc_url_wss,
             bot,
-            etherscan_api_key
+            etherscan_api_key,
         })
     }
 
@@ -102,7 +102,7 @@ mod tests {
             "https://mainnet.infura.io/v3/key".to_string(),
             "wss://mainnet.infura.io/ws/v3/key".to_string(),
             "some_token".to_string(),
-            "some_ether_scan_key".to_string()
+            "some_ether_scan_key".to_string(),
         );
         assert!(config.is_ok());
     }
@@ -113,7 +113,7 @@ mod tests {
             "wss://mainnet.infura.io".to_string(),
             "wss://mainnet.infura.io/ws".to_string(),
             "some_token".to_string(),
-            "some_ether_scan_key".to_string()
+            "some_ether_scan_key".to_string(),
         );
         match result {
             Err(ConfigError::InvalidUrl { field, .. }) => assert_eq!(field, "RPC_URL"),
@@ -127,7 +127,7 @@ mod tests {
             "https://mainnet.infura.io".to_string(),
             "https://mainnet.infura.io".to_string(),
             "some_token".to_string(),
-            "some_ether_scan_key".to_string()
+            "some_ether_scan_key".to_string(),
         );
         match result {
             Err(ConfigError::InvalidUrl { field, .. }) => assert_eq!(field, "RPC_URL_WSS"),
@@ -141,7 +141,7 @@ mod tests {
             "not_a_url".to_string(),
             "wss://mainnet.infura.io/ws".to_string(),
             "some_token".to_string(),
-            "some_ether_scan_key".to_string()
+            "some_ether_scan_key".to_string(),
         );
         assert!(result.is_err());
     }
@@ -152,7 +152,7 @@ mod tests {
             "https://mainnet.infura.io".to_string(),
             "not_a_url".to_string(),
             "some_token".to_string(),
-            "some_ether_scan_key".to_string()
+            "some_ether_scan_key".to_string(),
         );
         assert!(result.is_err());
     }
@@ -163,7 +163,7 @@ mod tests {
             "http://localhost:8545".to_string(),
             "ws://localhost:8546".to_string(),
             "some_token".to_string(),
-            "some_ether_scan_key".to_string()
+            "some_ether_scan_key".to_string(),
         );
         assert!(result.is_ok());
     }

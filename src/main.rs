@@ -36,7 +36,7 @@ async fn main() {
             std::process::exit(1);
         })
         .into_stream();
-    
+
     let provider = Arc::new(wss_provider);
     let etherscan_client = Arc::new(EtherscanClient::new(config.etherscan_api_key.clone()));
     let bot = config.get_bot();
@@ -52,7 +52,14 @@ async fn main() {
 
         tokio::spawn(async move {
             let eth_price = get_eth_price(&provider).await;
-            scanner::block::analyze_block(&provider, block_number, eth_price, &bot, &etherscan_client).await;
+            scanner::block::analyze_block(
+                &provider,
+                block_number,
+                eth_price,
+                &bot,
+                &etherscan_client,
+            )
+            .await;
         });
     }
 }
