@@ -76,4 +76,29 @@ impl EtherscanClient {
             tx_hash,
         }
     }
+
+    // Returns the number of token holders
+    // pub async fn get_holder_count(&self, token: &Address) -> u64 {
+    //     let token_str = token.to_string();
+    //     let params = [
+    //         ("module", "token"),
+    //         ("action", "tokeninfo"),
+    //         ("contractaddress", token_str.as_str()),
+    //     ];
+
+    //     let res = self
+    //         .get::<EtherscanResponse<Vec<serde_json::Value>>>(&params)
+    //         .await;
+
+    //     println!("Res: {res:?}");
+    //     res.and_then(|r| {
+    //         if r.status != "1" {
+    //             return None;
+    //         }
+    //         r.result.into_iter().next()?["holdersCount"]
+    //             .as_str()
+    //             .and_then(|s| s.parse().ok())
+    //     })
+    //     .unwrap_or(0)
+    // }
 }

@@ -1,14 +1,13 @@
 use std::collections::HashSet;
 
 use crate::{
+    decscreener::token_details::get_dexscreener_data,
     etherscan::client::EtherscanClient,
     lp::lp_lock::is_lp_locked,
     telegram,
     token::{
         honeypot::get_honey_pot,
         info::{get_deployer, get_token_info},
-        liquidity::get_liquidity,
-        market::get_market_cap,
     },
     types::TokenInfo,
     utils::{constant::WETH, contracts::IUniswapV2Pair},
@@ -102,10 +101,11 @@ pub async fn decode_swap<P: Provider>(
             }
         }
 
-        tracing::info!("Buy Counts: {buy_counts}");
-        if buy_counts < 20 {
+        if buy_counts < 2 {
             return;
         }
+
+        println!("Buy counts: {buy_counts}");
 
         // Buy Pressure Ratio
         let buy_ratio = if total_swaps > 0 {
@@ -115,16 +115,12 @@ pub async fn decode_swap<P: Provider>(
         };
 
         // Get Token Info
+        let dex_data = get_dexscreener_data(&pair_address).await;
+        let dex_data = match dex_data {
+            Some(data) => data,
+            None => return,
+        };
         let token_meta = get_token_info(provider, token0, token1).await;
-        let liquidity = get_liquidity(provider, &pair_address, token0).await;
-        let market_cap = get_market_cap(
-            provider,
-            token0,
-            token_meta.total_supply,
-            token_meta.decimals,
-            pair_address,
-        )
-        .await;
         let honeypoy_res = get_honey_pot(&token_meta.address, &pair_address)
             .await
             .unwrap();
@@ -137,20 +133,28 @@ pub async fn decode_swap<P: Provider>(
             .await;
         let wallet_info = etherscan_client.get_wallet_info(&deployer).await;
         let bad_reputation = etherscan_client.check_deployer_reputation(&deployer).await;
+        // let holder_count = etherscan_client.get_holder_count(&token_meta.address).await;
 
-        let liquidity_usd = liquidity * eth_price;
-        let marketcap_usd = market_cap * eth_price;
+        // let liquidity_usd = liquidity * eth_price;
+        // let marketcap_usd = market_cap * eth_price;
+        let liquidity_usd = dex_data.liquidity_usd;
+        let marketcap_usd = dex_data.market_cap;
+        let mcap_to_liq_ratio = if liquidity_usd > 0.0 {
+            marketcap_usd / liquidity_usd
+        } else {
+            0.0
+        };
 
-        // More Filters
-        if unique_buyers.len() < 2 {
-            return;
-        } // at least 2 different wallets
-        if volume_usd < 500.0 {
-            return;
-        } // at least $500 volume
-        if liquidity_usd < 5000.0 {
-            return;
-        } // at least $5k liquidity
+        // // More Filters
+        // if unique_buyers.len() < 2 {
+        //     return;
+        // } // at least 2 different wallets
+        // if volume_usd < 500.0 {
+        //     return;
+        // } // at least $500 volume
+        // if liquidity_usd < 5000.0 {
+        //     return;
+        // } // at least $5k liquidity
 
         let token_info = TokenInfo {
             name: token_meta.name,
@@ -165,16 +169,32 @@ pub async fn decode_swap<P: Provider>(
             market_cap_usd: marketcap_usd,
             honeypot: honeypoy_res.honeypot_result.is_honeypot,
             deployer: deployer,
-            liquidity_usd: liquidity * eth_price,
+            liquidity_usd,
             buy_ratio,
             deployer_age_days: wallet_info.age_days,
             is_fresh_wallet: wallet_info.is_fresh_wallet,
             bad_reputation,
             buy_count: buy_counts,
             total_swaps,
-            mcap_to_liq_ratio: market_cap / liquidity,
+            mcap_to_liq_ratio,
             unique_buyers_count: unique_buyers.len() as u32,
-            volume_usd: volume_usd,
+            volume_usd: 54u64,
+            holder_count: dex_data.holder_count,
+            volume_5m: dex_data.vol_5m,
+            volume_1h: dex_data.vol_1h,
+            volume_6h: dex_data.vol_6h,
+            volume_24h: dex_data.vol_24h,
+            buys_5m: dex_data.buys_5m,
+            sells_5m: dex_data.sells_5m,
+            buys_1h: dex_data.buys_1h,
+            sells_1h: dex_data.sells_1h,
+            buys_6h: dex_data.buys_6h,
+            sells_6h: dex_data.sells_6h,
+            buys_24h: dex_data.buys_24h,
+            sells_24h: dex_data.sells_24h,
+            price_usd: dex_data.price_usd,
+            price_change_5m: dex_data.price_change_5m,
+            price_change_1h: dex_data.price_change_1h,
         };
 
         // Send the Message to TELEGRAM

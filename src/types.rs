@@ -24,7 +24,26 @@ pub struct TokenInfo {
     pub contract_name: String,
     pub mcap_to_liq_ratio: f64,
     pub unique_buyers_count: u32,
-    pub volume_usd: f64,
+    pub holder_count: u64,
+    pub volume_usd: u64,
+    // Volume
+    pub volume_5m: f64,
+    pub volume_1h: f64,
+    pub volume_6h: f64,
+    pub volume_24h: f64,
+    // Transactions
+    pub buys_5m: u32,
+    pub sells_5m: u32,
+    pub buys_1h: u32,
+    pub sells_1h: u32,
+    pub buys_6h: u32,
+    pub sells_6h: u32,
+    pub buys_24h: u32,
+    pub sells_24h: u32,
+    // Price
+    pub price_usd: f64,
+    pub price_change_5m: f64,
+    pub price_change_1h: f64,
 }
 
 #[derive(Debug, Clone)]
@@ -127,4 +146,26 @@ pub struct WalletInfo {
     pub age_days: u64,
     pub deployed_contracts: Vec<Address>,
     pub is_fresh_wallet: bool,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct DexscreenerVolume {
+    pub price_usd: f64,
+    pub market_cap: f64,
+    pub liquidity_usd: f64,
+    pub vol_5m: f64,
+    pub vol_1h: f64,
+    pub vol_6h: f64,
+    pub vol_24h: f64,
+    pub buys_5m: u32,
+    pub sells_5m: u32,
+    pub buys_1h: u32,
+    pub sells_1h: u32,
+    pub buys_6h: u32,
+    pub sells_6h: u32,
+    pub buys_24h: u32,
+    pub sells_24h: u32,
+    pub price_change_5m: f64,
+    pub price_change_1h: f64,
+    pub holder_count: u64,
 }

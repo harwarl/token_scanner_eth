@@ -5,6 +5,7 @@ use alloy::providers::Provider;
 use futures_util::StreamExt;
 
 pub mod config;
+pub mod decscreener;
 pub mod etherscan;
 pub mod lp;
 pub mod provider;
