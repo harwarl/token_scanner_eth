@@ -21,15 +21,17 @@ pub async fn get_token_info<P: Provider>(
 ) -> TokenMetaInfo {
     let token = if token0 == WETH { token1 } else { token0 };
 
+    let contract = IERC20::new(token, provider);
+
     // Token Name
-    let token_name = IERC20::new(token, provider)
+    let token_name = contract
         .name()
         .call()
         .await
         .unwrap_or_else(|_| "Unknown".to_string());
 
     // Total Balance
-    // let contract_balance = IERC20::new(token, provider)
+    // let contract_balance = contract
     //     .balanceOf(token)
     //     .call()
     //     .await
@@ -37,7 +39,7 @@ pub async fn get_token_info<P: Provider>(
     //     .unwrap_or(U256::ZERO);
 
     // Total Supply
-    let total_supply = IERC20::new(token, provider)
+    let total_supply = contract
         .totalSupply()
         .call()
         .await
@@ -45,7 +47,7 @@ pub async fn get_token_info<P: Provider>(
         .unwrap_or(U256::ZERO);
 
     // Decimals
-    let decimals = IERC20::new(token, provider)
+    let decimals = contract
         .decimals()
         .call()
         .await
@@ -57,9 +59,9 @@ pub async fn get_token_info<P: Provider>(
     let total_supply_formatted = total_supply.to::<u128>() as f64 / divisor.to::<u128>() as f64;
 
     // IsRenounced
-    let owner = match IERC20::new(token, provider).owner().call().await {
+    let owner = match contract.owner().call().await {
         Ok(r) => r,
-        Err(_) => match IERC20::new(token, provider).getOwner().call().await {
+        Err(_) => match contract.getOwner().call().await {
             Ok(r) => r,
             Err(_) => Address::ZERO,
         },
