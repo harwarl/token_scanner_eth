@@ -30,14 +30,6 @@ pub async fn get_token_info<P: Provider>(
         .await
         .unwrap_or_else(|_| "Unknown".to_string());
 
-    // Total Balance
-    // let contract_balance = contract
-    //     .balanceOf(token)
-    //     .call()
-    //     .await
-    //     .map(|r| r)
-    //     .unwrap_or(U256::ZERO);
-
     // Total Supply
     let total_supply = contract
         .totalSupply()

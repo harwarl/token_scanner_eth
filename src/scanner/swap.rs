@@ -26,12 +26,14 @@ pub async fn decode_swap<P: Provider>(
     checked_pairs: &mut HashSet<Address>,
     block_number: u64,
     provider: &P,
-    eth_price: f64,
+    token0: Address,
+    token1: Address,
     bot: &Bot,
     etherscan_client: &EtherscanClient,
 ) {
     // Check if the hashed set contains the pair address, if it does, skip processing this log to avoid duplicate processing of the same pair in the same block
     if checked_pairs.contains(&pair_address) {
+        println!("It contains");
         return;
     };
 
@@ -39,22 +41,7 @@ pub async fn decode_swap<P: Provider>(
         checked_pairs.insert(pair_address);
 
         let swap_topic =
-            b256!("0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822");
-
-        let pair = IUniswapV2Pair::new(pair_address, &provider);
-        let token0 = match pair.token0().call().await {
-            Ok(t) => t,
-            Err(_) => {
-                return;
-            }
-        };
-
-        let token1 = match pair.token1().call().await {
-            Ok(t) => t,
-            Err(_) => {
-                return;
-            }
-        };
+            b256!("d78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822");
 
         let filter = Filter::new()
             .address(pair_address)
@@ -72,7 +59,7 @@ pub async fn decode_swap<P: Provider>(
         let mut buy_counts = 0u32;
         let mut total_swaps = 0u32;
         let mut unique_buyers: HashSet<Address> = HashSet::new();
-        let mut volume_usd = 0.0f64;
+        // let mut volume_usd = 0.0f64;
 
         for past_log in logs {
             if let Ok(past_swap_event) = IUniswapV2Pair::Swap::decode_log(past_log.inner.as_ref()) {
@@ -82,12 +69,12 @@ pub async fn decode_swap<P: Provider>(
                 unique_buyers.insert(past_swap_event.sender);
 
                 // Sum WETH volume
-                let weth_in = if token0 == WETH {
-                    past_swap_event.amount0In.to::<u128>() as f64 / 1e18
-                } else {
-                    past_swap_event.amount1In.to::<u128>() as f64 / 1e18
-                };
-                volume_usd += weth_in * eth_price;
+                // let weth_in = if token0 == WETH {
+                //     past_swap_event.amount0In.to::<u128>() as f64 / 1e18
+                // } else {
+                //     past_swap_event.amount1In.to::<u128>() as f64 / 1e18
+                // };
+                // volume_usd += weth_in * eth_price;
 
                 let swap_direction = if past_swap_event.amount1Out == U256::ZERO {
                     if token0 == WETH { 1 } else { 0 }
@@ -101,11 +88,11 @@ pub async fn decode_swap<P: Provider>(
             }
         }
 
-        if buy_counts < 2 {
+        println!("Buy count == {buy_counts}");
+
+        if buy_counts < 20 {
             return;
         }
-
-        println!("Buy counts: {buy_counts}");
 
         // Buy Pressure Ratio
         let buy_ratio = if total_swaps > 0 {

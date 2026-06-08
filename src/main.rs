@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{config::Config, etherscan::client::EtherscanClient, token::market::get_eth_price};
+use crate::{config::Config, etherscan::client::EtherscanClient};
 use alloy::providers::Provider;
 use futures_util::StreamExt;
 
@@ -45,18 +45,18 @@ async fn main() {
     // Add logic to process new blocks and scan for token transfers
     while let Some(block) = stream.next().await {
         let block_number = block.number;
-        tracing::info!("Block Number: {block_number}");
+        // tracing::info!("Block Number: {block_number}");
 
         let provider = Arc::clone(&provider);
         let etherscan_client = Arc::clone(&etherscan_client);
         let bot = bot.clone();
 
         tokio::spawn(async move {
-            let eth_price = get_eth_price(&provider).await;
+            // let eth_price = get_eth_price(&provider).await;
             scanner::block::analyze_block(
                 &provider,
                 block_number,
-                eth_price,
+                // eth_price,
                 &bot,
                 &etherscan_client,
             )

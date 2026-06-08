@@ -15,7 +15,7 @@ use crate::{
 pub async fn analyze_block<P: Provider>(
     provider: P,
     block_number: u64,
-    eth_price: f64,
+    // eth_price: f64,
     bot: &Bot,
     etherscan_client: &EtherscanClient,
 ) {
@@ -76,7 +76,8 @@ pub async fn analyze_block<P: Provider>(
                 &mut checked_pairs,
                 block_number,
                 &provider,
-                eth_price,
+                token0,
+                token1,
                 bot,
                 etherscan_client,
             )
