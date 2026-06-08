@@ -5,6 +5,7 @@ use std::{
 
 use crate::{config::Config, etherscan::client::EtherscanClient};
 use alloy::{primitives::Address, providers::Provider};
+use axum::{Router, routing::{get}};
 use futures_util::StreamExt;
 
 pub mod config;
@@ -28,6 +29,17 @@ async fn main() {
         std::process::exit(1);
     });
 
+    // Create a minimalistic Server for health check
+    tokio::spawn(async {
+        let app = Router::new().route("/", get(|| async { "ok" }));
+        let port = std::env::var("PORT").unwrap_or_else(|_| "8080".to_string());
+        let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{port}"))
+            .await
+            .unwrap();
+        tracing::info!("Health server listening on port {port}");
+        axum::serve(listener, app).await.unwrap();
+    });
+    
     tracing::info!("Starting Token Scanner for ETH");
     let wss_provider = provider::connect_wss(config.rpc_url_wss.clone()).await;
 

@@ -1,9 +1,9 @@
-use alloy::{
-    primitives::{Address, U256, Uint},
-    providers::Provider,
-};
+// use alloy::{
+//     primitives::{Address, U256, Uint},
+//     providers::Provider,
+// };
 
-use crate::utils::{constant::WETH, contracts::IUniswapV2Pair};
+// use crate::utils::{constant::WETH, contracts::IUniswapV2Pair};
 
 // pub async fn get_eth_price<P: Provider>(provider: P) -> f64 {
 //     let pair: IUniswapV2Pair::IUniswapV2PairInstance<P> = IUniswapV2Pair::new(WETHUSDTV2PAIR, provider);
