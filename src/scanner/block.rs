@@ -1,4 +1,7 @@
-use std::collections::HashSet;
+use std::{
+    collections::HashSet,
+    sync::{Arc, RwLock},
+};
 
 use alloy::{
     network::TransactionResponse, primitives::Address, providers::Provider,
@@ -15,13 +18,10 @@ use crate::{
 pub async fn analyze_block<P: Provider>(
     provider: P,
     block_number: u64,
-    // eth_price: f64,
+    checked_pairs: Arc<RwLock<HashSet<Address>>>,
     bot: &Bot,
     etherscan_client: &EtherscanClient,
 ) {
-    // tracing::info!("Analyzing block: {}", block_number);
-    let mut checked_pairs: HashSet<Address> = HashSet::new();
-
     let block = provider
         .get_block_by_number(block_number.into())
         .full()
@@ -73,7 +73,7 @@ pub async fn analyze_block<P: Provider>(
             scanner::swap::decode_swap(
                 log,
                 pair_address,
-                &mut checked_pairs,
+                Arc::clone(&checked_pairs),
                 block_number,
                 &provider,
                 token0,

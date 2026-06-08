@@ -39,12 +39,7 @@ pub async fn get_token_info<P: Provider>(
         .unwrap_or(U256::ZERO);
 
     // Decimals
-    let decimals = contract
-        .decimals()
-        .call()
-        .await
-        .map(|r| r)
-        .unwrap_or(18u8);
+    let decimals = contract.decimals().call().await.map(|r| r).unwrap_or(18u8);
 
     // format units
     let divisor = U256::from(10u64).pow(U256::from(decimals));

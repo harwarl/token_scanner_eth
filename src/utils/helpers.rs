@@ -97,10 +97,10 @@ pub fn calculate_volatility(volume_24h: f64, liquidity_usd: f64) -> f64 {
 
 pub fn volatility_label(v: f64) -> &'static str {
     match v {
-        v if v < 100.0  => "🟢 Low",
-        v if v < 300.0  => "🟡 Medium",
+        v if v < 100.0 => "🟢 Low",
+        v if v < 300.0 => "🟡 Medium",
         v if v < 1000.0 => "🟠 High",
-        _               => "🔴 Extreme",
+        _ => "🔴 Extreme",
     }
 }
 

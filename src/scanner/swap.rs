@@ -1,4 +1,7 @@
-use std::collections::HashSet;
+use std::{
+    collections::HashSet,
+    sync::{Arc, RwLock},
+};
 
 use crate::{
     decscreener::token_details::get_dexscreener_data,
@@ -23,7 +26,7 @@ use teloxide::Bot;
 pub async fn decode_swap<P: Provider>(
     log: &Log,
     pair_address: Address,
-    checked_pairs: &mut HashSet<Address>,
+    checked_pairs: Arc<RwLock<HashSet<Address>>>,
     block_number: u64,
     provider: &P,
     token0: Address,
@@ -32,16 +35,17 @@ pub async fn decode_swap<P: Provider>(
     etherscan_client: &EtherscanClient,
 ) {
     // Check if the hashed set contains the pair address, if it does, skip processing this log to avoid duplicate processing of the same pair in the same block
-    if checked_pairs.contains(&pair_address) {
-        println!("It contains");
-        return;
-    };
+    {
+        // Get the pairs in checked_pairs
+        let mut pairs = checked_pairs.write().unwrap();
+        if pairs.contains(&pair_address) {
+            return;
+        }
+        pairs.insert(pair_address);
+    }
 
     if let Ok(_swap_event) = IUniswapV2Pair::Swap::decode_log(log.inner.as_ref()) {
-        checked_pairs.insert(pair_address);
-
-        let swap_topic =
-            b256!("d78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822");
+        let swap_topic = b256!("d78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822");
 
         let filter = Filter::new()
             .address(pair_address)

@@ -1,7 +1,10 @@
-use std::sync::Arc;
+use std::{
+    collections::HashSet,
+    sync::{Arc, RwLock},
+};
 
 use crate::{config::Config, etherscan::client::EtherscanClient};
-use alloy::providers::Provider;
+use alloy::{primitives::Address, providers::Provider};
 use futures_util::StreamExt;
 
 pub mod config;
@@ -38,6 +41,7 @@ async fn main() {
         })
         .into_stream();
 
+    let checked_pairs = Arc::new(RwLock::new(HashSet::<Address>::new()));
     let provider = Arc::new(wss_provider);
     let etherscan_client = Arc::new(EtherscanClient::new(config.etherscan_api_key.clone()));
     let bot = config.get_bot();
@@ -45,18 +49,21 @@ async fn main() {
     // Add logic to process new blocks and scan for token transfers
     while let Some(block) = stream.next().await {
         let block_number = block.number;
-        // tracing::info!("Block Number: {block_number}");
+
+        if block_number % 100 == 0 {
+            checked_pairs.write().unwrap().clear();
+        }
 
         let provider = Arc::clone(&provider);
         let etherscan_client = Arc::clone(&etherscan_client);
         let bot = bot.clone();
+        let checked_pairs = Arc::clone(&checked_pairs);
 
         tokio::spawn(async move {
-            // let eth_price = get_eth_price(&provider).await;
             scanner::block::analyze_block(
                 &provider,
                 block_number,
-                // eth_price,
+                checked_pairs,
                 &bot,
                 &etherscan_client,
             )
