@@ -37,11 +37,11 @@ pub async fn decode_swap<P: Provider>(
     // Check if the hashed set contains the pair address, if it does, skip processing this log to avoid duplicate processing of the same pair in the same block
     {
         // Get the pairs in checked_pairs
-        let mut pairs = checked_pairs.write().unwrap();
+        let pairs = checked_pairs.read().unwrap();
         if pairs.contains(&pair_address) {
+            println!("Contains");
             return;
         }
-        pairs.insert(pair_address);
     }
 
     if let Ok(_swap_event) = IUniswapV2Pair::Swap::decode_log(log.inner.as_ref()) {
@@ -148,6 +148,15 @@ pub async fn decode_swap<P: Provider>(
         // if liquidity_usd < 5000.0 {
         //     return;
         // } // at least $5k liquidity
+
+        {
+            // Get the pairs in checked_pairs
+            let mut pairs = checked_pairs.write().unwrap();
+            if pairs.contains(&pair_address) {
+                return;
+            }
+            pairs.insert(pair_address);
+        }
 
         let token_info = TokenInfo {
             name: token_meta.name,
