@@ -3,7 +3,9 @@ use std::{
     sync::{Arc, RwLock},
 };
 
-use crate::{config::Config, etherscan::client::EtherscanClient};
+use crate::{
+    config::Config, etherscan::client::EtherscanClient, lib::server_balancer::LoadBalancer,
+};
 use alloy::{primitives::Address, providers::Provider};
 use axum::{Router, routing::get};
 use futures_util::StreamExt;
@@ -11,6 +13,7 @@ use futures_util::StreamExt;
 pub mod config;
 pub mod decscreener;
 pub mod etherscan;
+pub mod lib;
 pub mod lplock;
 pub mod provider;
 pub mod scanner;
@@ -55,7 +58,11 @@ async fn main() {
         .into_stream();
 
     let checked_pairs = Arc::new(RwLock::new(HashSet::<Address>::new()));
-    let provider = Arc::new(wss_provider);
+    // let provider = Arc::new(wss_provider);
+    let provider_balancer = Arc::new(LoadBalancer::new(
+        1,
+        vec!["https://eth.blockrazor.xyz", "https://ethereum-rpc.publicnode.com", "https://ethereum.public.blockpi.network/v1/rpc/public"],
+    ));
     let etherscan_client = Arc::new(EtherscanClient::new(config.etherscan_api_key.clone()));
     let bot = config.get_bot();
 
@@ -67,10 +74,14 @@ async fn main() {
             checked_pairs.write().unwrap().clear();
         }
 
-        let provider = Arc::clone(&provider);
+        // let provider = Arc::clone(&provider);
         let etherscan_client = Arc::clone(&etherscan_client);
         let bot = bot.clone();
         let checked_pairs = Arc::clone(&checked_pairs);
+        let provider_balancer = Arc::clone(&provider_balancer);
+        let server = provider_balancer.get_next_server().await.unwrap();
+        let url = server.url.clone();
+        let provider = provider::connect(url).await;
 
         tokio::spawn(async move {
             scanner::block::analyze_block(

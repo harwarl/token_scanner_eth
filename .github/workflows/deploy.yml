@@ -88,4 +88,4 @@ jobs:
                   image: "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }}"
             # If required, use the Cloud Run URL output in later steps
             - name: Show Output
-              run: echo ${{ steps.deploy.outputs.url }}
+              run: echo ${{ steps.auth.outputs.url }}

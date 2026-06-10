@@ -22,9 +22,9 @@ pub async fn connect_wss(rpc_url_wss: String) -> impl Provider {
 ///
 /// # Panics
 /// Panics if the HTTP connection cannot be established
-pub async fn connect(rpc_url: &str) -> impl Provider {
+pub async fn connect(rpc_url: String) -> impl Provider {
     ProviderBuilder::new()
-        .connect(rpc_url)
+        .connect(rpc_url.as_str())
         .await
         .expect("Failed to connect to provider")
 }
