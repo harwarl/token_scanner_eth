@@ -1,10 +1,21 @@
-FROM rust:1.91 AS builder
+# Stage 1: Build
+FROM rust:1.91-alpine AS build
+RUN apk add --no-cache musl-dev ca-certificates openssl-dev openssl-libs-static pkgconf
 WORKDIR /app
-COPY . .
+
+COPY Cargo.toml ./
+COPY abi ./abi
+RUN mkdir src && echo "fn main() {}" > src/main.rs
+RUN cargo build --release
+RUN rm -rf src
+
+COPY src ./src
+RUN touch src/main.rs
 RUN cargo build --release
 
-FROM debian:bookworm-slim
-RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
-WORKDIR /app
-COPY --from=builder /app/target/release/server .
-CMD ["./token_scanner_eth"]
+# Stage 2: Minimal production image
+FROM scratch
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=build /app/target/release/token_scanner_eth /server
+EXPOSE 8080
+ENTRYPOINT ["/server"]

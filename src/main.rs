@@ -30,13 +30,14 @@ async fn main() {
     });
 
     // Create a minimalistic Server for health check
+    let app = Router::new().route("/", get(|| async { "ok" }));
+    let port = std::env::var("PORT").unwrap_or_else(|_| "8080".to_string());
+    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{port}"))
+        .await
+        .unwrap();
+    tracing::info!("Health server listening on port {port}");
+    
     tokio::spawn(async {
-        let app = Router::new().route("/", get(|| async { "ok" }));
-        let port = std::env::var("PORT").unwrap_or_else(|_| "8080".to_string());
-        let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{port}"))
-            .await
-            .unwrap();
-        tracing::info!("Health server listening on port {port}");
         axum::serve(listener, app).await.unwrap();
     });
     
