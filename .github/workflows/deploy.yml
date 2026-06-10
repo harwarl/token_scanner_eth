@@ -78,6 +78,13 @@ jobs:
                   workload_identity_provider: "${{ vars.WIF_PROVIDER }}" # e.g. - projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider
                   service_account: "${{ vars.WIF_SERVICE_ACCOUNT }}" # e.g. - my-service-account@my-project.iam.gserviceaccount.com
 
+             - name: Docker Auth
+               uses: docker/login-action@v3
+               with:
+                  username: "oauth2accesstoken"
+                  password: "${{ steps.auth.outputs.access_token }}"
+                  registry: "${{ env.REGION }}-docker.pkg.dev"
+
             - name: Build and Push Container
               run: |-
                   docker build -t "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }}" ./
@@ -95,7 +102,7 @@ jobs:
                   flags: |
                       --no-allow-unauthenticated
                   env_vars: |
-                      RPC_URL=$${{secrets.RPC_URL}}
+                      RPC_URL=${{secrets.RPC_URL}}
                       RPC_URL_WSS=${{secrets.RPC_URL_WSS}}
                       TELOXIDE_TOKEN=${{secrets.TELOXIDE_TOKEN}}
                       ETHERSCAN_API_KEY=${{secrets.ETHERSCAN_API_KEY}}
