@@ -6,7 +6,7 @@ use std::{
 use crate::{
     decscreener::token_details::get_dexscreener_data,
     etherscan::client::EtherscanClient,
-    lp::lp_lock::is_lp_locked,
+    lplock::lp_lock::is_lp_locked,
     telegram,
     token::{
         honeypot::get_honey_pot,
