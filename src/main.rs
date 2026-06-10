@@ -4,7 +4,9 @@ use std::{
 };
 
 use crate::{
-    config::Config, etherscan::client::EtherscanClient, lib::server_balancer::LoadBalancer,
+    config::Config,
+    etherscan::client::EtherscanClient,
+    lib::server_balancer::{LoadBalancer, Server},
 };
 use alloy::{primitives::Address, providers::Provider};
 use axum::{Router, routing::get};
@@ -61,7 +63,21 @@ async fn main() {
     // let provider = Arc::new(wss_provider);
     let provider_balancer = Arc::new(LoadBalancer::new(
         1,
-        vec!["https://eth.blockrazor.xyz", "https://ethereum-rpc.publicnode.com", "https://ethereum.public.blockpi.network/v1/rpc/public"],
+        vec![
+            "https://eth.blockrazor.xyz",
+            "https://ethereum-rpc.publicnode.com",
+            "https://ethereum.public.blockpi.network/v1/rpc/public",
+            "https://0xrpc.io/eth",
+            "https://ethereum-json-rpc.stakely.io",
+            "https://rpc.fullsend.to",
+            "https://api.zan.top/eth-mainnet",
+            "https://eth.llamarpc.com",
+            "https://rpc.payload.de",
+            "https://endpoints.omniatech.io/v1/eth/mainnet/public",
+            "https://rpc.public.curie.radiumblock.co/ws/ethereum",
+            "https://rpc.polysplit.cloud/v1/chain/1",
+            "https://eth.merkle.io",
+        ],
     ));
     let etherscan_client = Arc::new(EtherscanClient::new(config.etherscan_api_key.clone()));
     let bot = config.get_bot();
@@ -74,12 +90,16 @@ async fn main() {
             checked_pairs.write().unwrap().clear();
         }
 
-        // let provider = Arc::clone(&provider);
         let etherscan_client = Arc::clone(&etherscan_client);
         let bot = bot.clone();
         let checked_pairs = Arc::clone(&checked_pairs);
         let provider_balancer = Arc::clone(&provider_balancer);
-        let server = provider_balancer.get_next_server().await.unwrap();
+        
+        let server = provider_balancer
+            .get_next_server()
+            .await
+            .unwrap_or_else(|| Server::fallback(config.rpc_url.as_str(), 1));
+
         let url = server.url.clone();
         let provider = provider::connect(url).await;
 

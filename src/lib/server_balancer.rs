@@ -1,6 +1,9 @@
 use std::{
-    sync::{Arc, RwLock, atomic::{AtomicUsize, Ordering}},
-    time::Duration,
+    sync::{
+        Arc, RwLock,
+        atomic::{AtomicUsize, Ordering},
+    },
+    time::{Duration, Instant},
 };
 
 use reqwest::Client;
@@ -20,7 +23,7 @@ impl LoadBalancer {
                 .into_iter()
                 .map(|url| Server::new(chain_id, url.to_string()))
                 .collect(),
-            current: AtomicUsize::new(0)
+            current: AtomicUsize::new(0),
         }
     }
 
@@ -29,7 +32,7 @@ impl LoadBalancer {
         let len = servers.len() as usize;
 
         for _ in 0..len {
-            let idx =  self.current.fetch_add(1, Ordering::Relaxed)  % len;    
+            let idx = self.current.fetch_add(1, Ordering::Relaxed) % len;
             let server = servers[idx].clone();
             if server.health_check().await {
                 return Some(server);
@@ -44,6 +47,7 @@ pub struct Server {
     pub chain_id: i32,
     pub url: String,
     pub is_healthy: Arc<RwLock<bool>>,
+    pub last_failed: Arc<RwLock<Option<Instant>>>,
     pub client: Client,
 }
 
@@ -53,12 +57,20 @@ impl Server {
             chain_id,
             url,
             is_healthy: Arc::new(RwLock::new(true)),
+            last_failed: Arc::new(RwLock::new(None)),
             client: reqwest::Client::new(),
         }
     }
 
     // check if the server is healthy for the next call
     pub async fn health_check(&self) -> bool {
+        // skip if failed within the last 60 seconds
+        if let Some(last) = *self.last_failed.read().unwrap() {
+            if last.elapsed() < Duration::from_secs(60) {
+                return false
+            }
+        }
+
         // Call for a block number to validate the RPC URL
         let body = serde_json::json!({
             "jsonrpc": "2.0",
@@ -83,8 +95,13 @@ impl Server {
             }
             Err(_) => false,
         };
+
         tracing::info!("Is Healthy: {is_healthy}");
         self.set_health(is_healthy);
+        if !is_healthy {
+            *self.last_failed.write().unwrap() = Some(Instant::now());
+        };
+
         is_healthy
     }
 
@@ -92,6 +109,16 @@ impl Server {
     pub fn set_health(&self, healthy: bool) {
         let mut health = self.is_healthy.write().unwrap();
         *health = healthy
+    }
+
+    pub fn fallback(url: &str, chain_id: i32) -> Server {
+        Server {
+            chain_id,
+            url: url.to_string(),
+            last_failed: Arc::new(RwLock::new(None)),
+            is_healthy: Arc::new(RwLock::new(true)),
+            client: Client::new(),
+        }
     }
 }
 
