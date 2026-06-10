@@ -24,7 +24,7 @@ pub mod token;
 pub mod types;
 pub mod utils;
 
-#[tokio::main]
+#[tokio::main(flavor = "multi_thread", worker_threads = 20)]
 async fn main() {
     // Load the env values
     dotenv::dotenv().ok();
