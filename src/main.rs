@@ -5,7 +5,7 @@ use std::{
 
 use crate::{config::Config, etherscan::client::EtherscanClient};
 use alloy::{primitives::Address, providers::Provider};
-use axum::{Router, routing::{get}};
+use axum::{Router, routing::get};
 use futures_util::StreamExt;
 
 pub mod config;
@@ -36,11 +36,11 @@ async fn main() {
         .await
         .unwrap();
     tracing::info!("Health server listening on port {port}");
-    
+
     tokio::spawn(async {
         axum::serve(listener, app).await.unwrap();
     });
-    
+
     tracing::info!("Starting Token Scanner for ETH");
     let wss_provider = provider::connect_wss(config.rpc_url_wss.clone()).await;
 
