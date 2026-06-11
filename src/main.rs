@@ -11,6 +11,7 @@ use crate::{
 use alloy::{primitives::Address, providers::Provider};
 use axum::{Router, routing::get};
 use futures_util::StreamExt;
+use tracing_subscriber::EnvFilter;
 
 pub mod config;
 pub mod decscreener;
@@ -29,8 +30,10 @@ async fn main() {
     // Load the env values
     dotenv::dotenv().ok();
     tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::INFO)
+        .with_env_filter(EnvFilter::from_default_env())
+        .with_ansi(false)
         .init();
+    
     let config = Config::from_env().unwrap_or_else(|e| {
         tracing::error!("Configuration Error {e}");
         std::process::exit(1);
