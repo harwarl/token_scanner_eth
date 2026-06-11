@@ -219,7 +219,7 @@ mod tests {
             .mount(&mock2)
             .await;
 
-        let mut lb = LoadBalancer::new(1, vec![mock1.uri().as_str(), mock2.uri().as_str()]);
+        let lb = LoadBalancer::new(1, vec![mock1.uri().as_str(), mock2.uri().as_str()]);
         let server = lb.get_next_server().await;
 
         assert!(server.is_some());
@@ -234,7 +234,7 @@ mod tests {
             .mount(&mock)
             .await;
 
-        let mut lb = LoadBalancer::new(1, vec![mock.uri().as_str()]);
+        let lb = LoadBalancer::new(1, vec![mock.uri().as_str()]);
         assert!(lb.get_next_server().await.is_none());
     }
 
@@ -250,7 +250,7 @@ mod tests {
                 .await;
         }
 
-        let mut lb = LoadBalancer::new(1, vec![mock1.uri().as_str(), mock2.uri().as_str()]);
+        let lb = LoadBalancer::new(1, vec![mock1.uri().as_str(), mock2.uri().as_str()]);
 
         let first = lb.get_next_server().await.unwrap().url;
         let second = lb.get_next_server().await.unwrap().url;
@@ -267,7 +267,7 @@ mod tests {
             .mount(&mock)
             .await;
 
-        let mut lb = LoadBalancer::new(1, vec![mock.uri().as_str()]);
+        let lb = LoadBalancer::new(1, vec![mock.uri().as_str()]);
 
         // Force the counter near usize::MAX to test wrapping
         lb.current.load(Ordering::Relaxed);
