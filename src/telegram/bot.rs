@@ -26,10 +26,10 @@ pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo) {
     ┗ 6h:  ${v6h}  •  24h: ${v24h}\n\
     \n\
     🔄 <b>Transactions</b>\n\
-    ┣ 5m:  \t🟢 {b5m} / 🔴 {s5m}\n\
-    ┣ 1h:  \t🟢 {b1h} / 🔴 {s1h}\n\
-    ┣ 6h:  \t🟢 {b6h} / 🔴 {s6h}\n\
-    ┗ 24h: \t🟢 {b24h} / 🔴 {s24h}\n\
+    ┣ 5m:  \t🟢 {b5m}  \t/ 🔴 {s5m}\n\
+    ┣ 1h:  \t🟢 {b1h}  \t/ 🔴 {s1h}\n\
+    ┣ 6h:  \t🟢 {b6h}  \t/ 🔴 {s6h}\n\
+    ┗ 24h: \t🟢 {b24h} \t/ 🔴 {s24h}\n\
     \n\
     🏁 Verified: {verified} • 🏠 Renounced: {renounced}\n\
     🔒 LP Lock: {lp} • 🍯 Honeypot: {hp}\n\

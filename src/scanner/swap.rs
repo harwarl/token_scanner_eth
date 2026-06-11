@@ -115,6 +115,13 @@ pub async fn decode_swap<P: Provider>(
         let deployer = get_deployer(provider, &honeypoy_res.pair.creation_tx_hash).await;
         let is_lp_locked = is_lp_locked(&pair_address, provider).await;
 
+        let liquidity_usd = dex_data.liquidity_usd;
+        let marketcap_usd = dex_data.market_cap;
+        // Filter Based on MC
+        if marketcap_usd < 10_000f64 || marketcap_usd > 1_000_000f64 {
+            return;
+        }
+
         // Etherscan calls
         let contract_info = etherscan_client
             .get_contract_info(&token_meta.address)
@@ -124,8 +131,7 @@ pub async fn decode_swap<P: Provider>(
         // let holder_count = etherscan_client.get_holder_count(&token_meta.address).await;
 
         // Get Prices
-        let liquidity_usd = dex_data.liquidity_usd;
-        let marketcap_usd = dex_data.market_cap;
+
         let mcap_to_liq_ratio = if liquidity_usd > 0.0 {
             marketcap_usd / liquidity_usd
         } else {
@@ -147,9 +153,6 @@ pub async fn decode_swap<P: Provider>(
         // } // at least $5k liquidity
 
         // Less than 10k tokens to be abandoned
-        if marketcap_usd < 10_000f64 || marketcap_usd > 1_000_000f64 {
-            return;
-        }
 
         {
             // Get the pairs in checked_pairs
