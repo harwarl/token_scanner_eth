@@ -10,24 +10,29 @@ use alloy::{
 use teloxide::Bot;
 
 use crate::{
+    config,
     etherscan::client::EtherscanClient,
-    scanner,
-    utils::{constant::WETH, contracts::IUniswapV2Pair, helpers},
+    provider, scanner,
+    utils::{
+        constant::WETH,
+        contracts::IUniswapV2Pair,
+        helpers::{self, get_block},
+    },
 };
 
-pub async fn analyze_block<P: Provider>(
+pub async fn analyze_block<P>(
     provider: P,
+    fallback: P,
     block_number: u64,
     checked_pairs: Arc<RwLock<HashSet<Address>>>,
     bot: &Bot,
     etherscan_client: &EtherscanClient,
-) {
-    let block = provider
-        .get_block_by_number(block_number.into())
-        .full()
+) where
+    P: Provider,
+{
+    let block = get_block(&provider, &fallback, block_number)
         .await
-        .expect("Failed to get block")
-        .expect("Block not found");
+        .expect("Failed to get block");
 
     let txns = block.transactions.as_transactions().unwrap_or_default();
 

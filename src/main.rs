@@ -81,6 +81,7 @@ async fn main() {
             "https://eth.merkle.io",
         ],
     ));
+    let fallback_provider = Arc::new(provider::connect(config.rpc_url.clone()).await);
     let etherscan_client = Arc::new(EtherscanClient::new(config.etherscan_api_key.clone()));
     let bot = config.get_bot();
 
@@ -88,14 +89,15 @@ async fn main() {
     while let Some(block) = stream.next().await {
         let block_number = block.number;
 
-        if block_number % 100 == 0 {
+        if block_number % 1000 == 0 {
             checked_pairs.write().unwrap().clear();
         }
 
         let etherscan_client = Arc::clone(&etherscan_client);
-        let bot = bot.clone();
         let checked_pairs = Arc::clone(&checked_pairs);
         let provider_balancer = Arc::clone(&provider_balancer);
+        let fallback = Arc::clone(&fallback_provider);
+        let bot = bot.clone();
 
         let server = provider_balancer
             .get_next_server()
@@ -108,6 +110,7 @@ async fn main() {
         tokio::spawn(async move {
             scanner::block::analyze_block(
                 &provider,
+                &fallback,
                 block_number,
                 checked_pairs,
                 &bot,

@@ -6034,6 +6034,7 @@ dependencies = [
  "axum",
  "dotenv",
  "ethers",
+ "eyre",
  "futures-util",
  "hex",
  "reqwest 0.13.4",

@@ -1,40 +1,8 @@
-use alloy::primitives::{Address, B256, keccak256};
-
-// pub fn get_univ2_pair_address(token_a: &Address, token_b: &Address) -> Address {
-//     let (token0, token1) = if token_a < token_b {
-//         (token_a, token_b)
-//     } else {
-//         (token_b, token_a)
-//     };
-
-//     println!("token0, {token0}, token1: {token1}");
-
-//     // Uniswap V2 Pair Address Calculation
-//     let factory: Address = "0x5C69bEe701ef814a2B6a3EcC1B0CEB0Ce2383b98"
-//         .parse()
-//         .unwrap();
-
-//     let init_code_hash: B256 =
-//     "0x96e8ac4277198ff8ba78caa5194fbbd3f0f89f5d1d6a8462fd5b0fce0c27a3a0"
-//         .parse()
-//         .unwrap();
-
-//     let salt = keccak256(&[token0.as_slice(), token1.as_slice()].concat());
-
-// let pair = keccak256(
-//     &[
-//         &[0xff],
-//         factory.as_slice(),
-//         salt.as_slice(),
-//         init_code_hash.as_slice(),
-//     ]
-//     .concat(),
-// );
-
-// Address::from_slice(&pair[12..])
-
-//     factory.create2(salt, init_code_hash)
-// }
+use alloy::{
+    primitives::{Address, B256, keccak256},
+    providers::Provider,
+    rpc::types::Block,
+};
 
 use hex::decode;
 
@@ -101,6 +69,30 @@ pub fn volatility_label(v: f64) -> &'static str {
         v if v < 300.0 => "🟡 Medium",
         v if v < 1000.0 => "🟠 High",
         _ => "🔴 Extreme",
+    }
+}
+
+pub async fn get_block<P>(primary: &P, fallback: &P, block_number: u64) -> eyre::Result<Block>
+where
+    P: Provider,
+{
+    match primary
+        .get_block_by_number(block_number.into())
+        .full()
+        .await
+    {
+        Ok(Some(block)) => Ok(block),
+        _ => {
+            tracing::warn!(
+                "Primary RPC failed for block {}, trying fallback",
+                block_number
+            );
+            fallback
+                .get_block_by_number(block_number.into())
+                .hashes()
+                .await?
+                .ok_or_else(|| eyre::eyre!("Block {} not found on fallback", block_number))
+        }
     }
 }
 

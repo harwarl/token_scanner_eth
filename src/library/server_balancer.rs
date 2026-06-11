@@ -95,8 +95,7 @@ impl Server {
             }
             Err(_) => false,
         };
-
-        tracing::info!("Is Healthy: {is_healthy}");
+        
         self.set_health(is_healthy);
         if !is_healthy {
             *self.last_failed.write().unwrap() = Some(Instant::now());

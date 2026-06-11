@@ -13,7 +13,7 @@ use crate::{
         info::{get_deployer, get_token_info},
     },
     types::TokenInfo,
-    utils::{constant::WETH, contracts::IUniswapV2Pair, helpers::calculate_volatility},
+    utils::{contracts::IUniswapV2Pair, helpers::calculate_volatility},
 };
 use alloy::{
     primitives::{Address, U256, b256},
@@ -27,7 +27,7 @@ pub async fn decode_swap<P: Provider>(
     log: &Log,
     pair_address: Address,
     checked_pairs: Arc<RwLock<HashSet<Address>>>,
-    block_number: u64,
+    _block_number: u64,
     provider: &P,
     token0: Address,
     token1: Address,
@@ -44,56 +44,56 @@ pub async fn decode_swap<P: Provider>(
     }
 
     if let Ok(_swap_event) = IUniswapV2Pair::Swap::decode_log(log.inner.as_ref()) {
-        let swap_topic = b256!("d78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822");
+        // let swap_topic = b256!("d78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822");
 
-        let filter = Filter::new()
-            .address(pair_address)
-            .event_signature(swap_topic)
-            .from_block(block_number - 2)
-            .to_block(block_number);
+        // let filter = Filter::new()
+        //     .address(pair_address)
+        //     .event_signature(swap_topic)
+        //     .from_block(block_number - 2)
+        //     .to_block(block_number);
 
-        let logs = match provider.get_logs(&filter).await {
-            Ok(logs) => logs,
-            Err(_) => {
-                return;
-            }
-        };
+        // let logs = match provider.get_logs(&filter).await {
+        //     Ok(logs) => logs,
+        //     Err(_) => {
+        //         return;
+        //     }
+        // };
 
-        let mut buy_counts = 0u32;
-        let mut total_swaps = 0u32;
-        let mut unique_buyers: HashSet<Address> = HashSet::new();
+        let buy_counts = 0u32;
+        let total_swaps = 0u32;
+        let unique_buyers: HashSet<Address> = HashSet::new();
         // let mut volume_usd = 0.0f64;
 
-        for past_log in logs {
-            if let Ok(past_swap_event) = IUniswapV2Pair::Swap::decode_log(past_log.inner.as_ref()) {
-                total_swaps += 1;
+        // for past_log in logs {
+        //     if let Ok(past_swap_event) = IUniswapV2Pair::Swap::decode_log(past_log.inner.as_ref()) {
+        //         total_swaps += 1;
 
-                // Track Unique buyers via sender field
-                unique_buyers.insert(past_swap_event.sender);
+        //         // Track Unique buyers via sender field
+        //         unique_buyers.insert(past_swap_event.sender);
 
-                // Sum WETH volume
-                // let weth_in = if token0 == WETH {
-                //     past_swap_event.amount0In.to::<u128>() as f64 / 1e18
-                // } else {
-                //     past_swap_event.amount1In.to::<u128>() as f64 / 1e18
-                // };
-                // volume_usd += weth_in * eth_price;
+        //         // Sum WETH volume
+        //         // let weth_in = if token0 == WETH {
+        //         //     past_swap_event.amount0In.to::<u128>() as f64 / 1e18
+        //         // } else {
+        //         //     past_swap_event.amount1In.to::<u128>() as f64 / 1e18
+        //         // };
+        //         // volume_usd += weth_in * eth_price;
 
-                let swap_direction = if past_swap_event.amount1Out == U256::ZERO {
-                    if token0 == WETH { 1 } else { 0 }
-                } else {
-                    if token0 == WETH { 0 } else { 1 }
-                };
+        //         let swap_direction = if past_swap_event.amount1Out == U256::ZERO {
+        //             if token0 == WETH { 1 } else { 0 }
+        //         } else {
+        //             if token0 == WETH { 0 } else { 1 }
+        //         };
 
-                if swap_direction == 0 {
-                    buy_counts += 1;
-                }
-            }
-        }
+        //         if swap_direction == 0 {
+        //             buy_counts += 1;
+        //         }
+        //     }
+        // }
 
-        if buy_counts < 2 {
-            return;
-        }
+        // if buy_counts <  {
+        //     return;
+        // }
 
         // Buy Pressure Ratio
         let buy_ratio = if total_swaps > 0 {
@@ -147,7 +147,7 @@ pub async fn decode_swap<P: Provider>(
         // } // at least $5k liquidity
 
         // Less than 10k tokens to be abandoned
-        if marketcap_usd < 10000f64 {
+        if marketcap_usd < 10_000f64 || marketcap_usd > 1_000_000f64 {
             return;
         }
 
