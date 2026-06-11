@@ -65,29 +65,35 @@ jobs:
                   project_id: "${{ secrets.PROJECT_ID }}"
                   token_format: "access_token"
 
-            - name: "Configure Docker" 
+            - name: "Configure Docker"
               uses: "docker/login-action@v3"
               with:
-                registry: "${{ env.REGION }}-docker.pkg.dev"
-                username: "oauth2accesstoken"
-                password: "${{ steps.auth.outputs.access_token }}"
+                  registry: "${{ env.REGION }}-docker.pkg.dev"
+                  username: "oauth2accesstoken"
+                  password: "${{ steps.auth.outputs.access_token }}"
 
             # BEGIN - Docker auth and build
             #
             # If you already have a container image, you can omit these steps.
             - name: "Build and Push Container"
               run: |-
-                DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.SERVICE }}:${{ github.sha }}"
-                docker build --tag "${DOCKER_TAG}" .
-                docker push "${DOCKER_TAG}"
-            
+                  DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.SERVICE }}:${{ github.sha }}"
+                  docker build --tag "${DOCKER_TAG}" .
+                  docker push "${DOCKER_TAG}"
+
             - name: "Deploy to Cloud Run"
               id: deploy
               uses: "google-github-actions/deploy-cloudrun@33553064113a37d688aa6937bacbdc481580be17" # google-github-actions/deploy-cloudrun@v2
               with:
-                service: "${{ env.SERVICE }}"
-                region: "${{ env.REGION }}"
-                image: "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.SERVICE }}:${{ github.sha }}"
+                  service: "${{ env.SERVICE }}"
+                  region: "${{ env.REGION }}"
+                  image: "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.SERVICE }}:${{ github.sha }}"
+                  env_vars: |
+                      RPC_URL=${{ secrets.RPC_URL }}
+                      RPC_URL_WSS=${{ secrets.RPC_URL_WSS }}
+                      ETHERSCAN_API_KEY=${{ secrets.ETHERSCAN_API_KEY }}
+                      TELOXIDE_TOKEN=${{ secrets.TELOXIDE_TOKEN }}
+                      CHAT_ID=${{secrets.CHAT_ID}}
 
             # If required, use the Cloud Run URL output in later steps
             - name: Show Output
