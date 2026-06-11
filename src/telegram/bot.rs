@@ -131,4 +131,6 @@ pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo) {
     {
         tracing::error!("Failed to send Telegram message: {}", e);
     }
+
+    tracing::info!("Found: {:?}", token_info.address);
 }
