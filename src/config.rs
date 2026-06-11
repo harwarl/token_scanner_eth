@@ -17,6 +17,7 @@ pub struct Config {
     pub rpc_url_wss: String,
     pub bot: Bot,
     pub etherscan_api_key: String,
+    pub chat_id: i64
 }
 
 impl Config {
@@ -33,7 +34,9 @@ impl Config {
         let etherscan_api_key = env::var("ETHERSCAN_API_KEY")
             .map_err(|_| ConfigError::MissingVar("ETHERSCAN_API_KEY".to_string()))?;
 
-        Self::new(rpc_url, rpc_url_wss, bot_token, etherscan_api_key)
+        let chat_id = env::var("CHAT_ID").map_err(|_| ConfigError::MissingVar("CHAT_ID".to_string()))?;
+
+        Self::new(rpc_url, rpc_url_wss, bot_token, etherscan_api_key, chat_id)
     }
 
     pub fn new(
@@ -41,10 +44,12 @@ impl Config {
         rpc_url_wss: String,
         bot_token: String,
         etherscan_api_key: String,
+        chat_id: String
     ) -> Result<Self, ConfigError> {
         // Validate the Urls
         validate_url(&rpc_url, "RPC_URL")?;
         validate_wss_url(&rpc_url_wss, "RPC_URL_WSS")?;
+        let parse_chat_id = chat_id.parse::<i64>().expect("Not a valid number");
 
         // Create Bot Instance
         let bot = Bot::new(bot_token);
@@ -54,6 +59,7 @@ impl Config {
             rpc_url_wss,
             bot,
             etherscan_api_key,
+            chat_id: parse_chat_id * -1
         })
     }
 
@@ -103,6 +109,7 @@ mod tests {
             "wss://mainnet.infura.io/ws/v3/key".to_string(),
             "some_token".to_string(),
             "some_ether_scan_key".to_string(),
+            "-2339089083209803".to_string()
         );
         assert!(config.is_ok());
     }
@@ -114,6 +121,7 @@ mod tests {
             "wss://mainnet.infura.io/ws".to_string(),
             "some_token".to_string(),
             "some_ether_scan_key".to_string(),
+            "-2339089083209803".to_string()
         );
         match result {
             Err(ConfigError::InvalidUrl { field, .. }) => assert_eq!(field, "RPC_URL"),
@@ -128,6 +136,7 @@ mod tests {
             "https://mainnet.infura.io".to_string(),
             "some_token".to_string(),
             "some_ether_scan_key".to_string(),
+            "-2339089083209803".to_string()
         );
         match result {
             Err(ConfigError::InvalidUrl { field, .. }) => assert_eq!(field, "RPC_URL_WSS"),
@@ -142,6 +151,7 @@ mod tests {
             "wss://mainnet.infura.io/ws".to_string(),
             "some_token".to_string(),
             "some_ether_scan_key".to_string(),
+            "-2339089083209803".to_string()
         );
         assert!(result.is_err());
     }
@@ -153,6 +163,7 @@ mod tests {
             "not_a_url".to_string(),
             "some_token".to_string(),
             "some_ether_scan_key".to_string(),
+            "-2339089083209803".to_string()
         );
         assert!(result.is_err());
     }
@@ -164,7 +175,10 @@ mod tests {
             "ws://localhost:8546".to_string(),
             "some_token".to_string(),
             "some_ether_scan_key".to_string(),
+            "2339089083209803".to_string()
         );
+        
         assert!(result.is_ok());
+        assert!(result.unwrap().chat_id < 0);
     }
 }

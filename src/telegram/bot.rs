@@ -7,8 +7,7 @@ use teloxide::{
 use url::Url;
 
 use crate::{
-    types::TokenInfo,
-    utils::helpers::{format_number, volatility_label},
+    config::Config, types::TokenInfo, utils::helpers::{format_number, volatility_label}
 };
 
 pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo) {
@@ -114,10 +113,11 @@ pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo) {
         )],
     ]);
 
-    let chat_id = ChatId(7070082881);
+    let raw_chat_id = Config::from_env().unwrap().chat_id;
+    let chat = ChatId(raw_chat_id);
 
     if let Err(e) = bot
-        .send_message(chat_id, message)
+        .send_message(chat, message)
         .parse_mode(ParseMode::Html)
         .reply_markup(keyboard)
         .await
