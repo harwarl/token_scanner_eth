@@ -39,7 +39,6 @@ pub async fn decode_swap<P: Provider>(
         // Get the pairs in checked_pairs
         let pairs = checked_pairs.read().unwrap();
         if pairs.contains(&pair_address) {
-            println!("Contains");
             return;
         }
     }
@@ -146,6 +145,11 @@ pub async fn decode_swap<P: Provider>(
         // if liquidity_usd < 5000.0 {
         //     return;
         // } // at least $5k liquidity
+
+        // Less than 10k tokens to be abandoned
+        if marketcap_usd < 10000f64 {
+            return
+        }
 
         {
             // Get the pairs in checked_pairs
