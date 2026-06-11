@@ -94,6 +94,7 @@ jobs:
                       ETHERSCAN_API_KEY=${{ secrets.ETHERSCAN_API_KEY }}
                       TELOXIDE_TOKEN=${{ secrets.TELOXIDE_TOKEN }}
                       CHAT_ID=${{secrets.CHAT_ID}}
+                      RUST_LOG=${{secrets.RUST_LOG}}
 
             # If required, use the Cloud Run URL output in later steps
             - name: Show Output
