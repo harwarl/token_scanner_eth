@@ -67,7 +67,7 @@ impl Server {
         // skip if failed within the last 60 seconds
         if let Some(last) = *self.last_failed.read().unwrap() {
             if last.elapsed() < Duration::from_secs(60) {
-                return false
+                return false;
             }
         }
 

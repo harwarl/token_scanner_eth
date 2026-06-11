@@ -47,6 +47,9 @@ pub struct TokenInfo {
 
     // Volatility
     pub volatility: f64,
+
+    // socials
+    pub socials: String,
 }
 
 #[derive(Debug, Clone)]
@@ -173,4 +176,7 @@ pub struct DexscreenerVolume {
     pub price_change_6h: f64,
     pub price_change_24h: f64,
     pub holder_count: u64,
+    pub website: Option<String>,
+    pub x: Option<String>,
+    pub telegram: Option<String>,
 }

@@ -6,7 +6,7 @@ use std::{
 use crate::{
     config::Config,
     etherscan::client::EtherscanClient,
-    lib::server_balancer::{LoadBalancer, Server},
+    library::server_balancer::{LoadBalancer, Server},
 };
 use alloy::{primitives::Address, providers::Provider};
 use axum::{Router, routing::get};
@@ -15,7 +15,7 @@ use futures_util::StreamExt;
 pub mod config;
 pub mod decscreener;
 pub mod etherscan;
-pub mod lib;
+pub mod library;
 pub mod lplock;
 pub mod provider;
 pub mod scanner;
@@ -28,7 +28,9 @@ pub mod utils;
 async fn main() {
     // Load the env values
     dotenv::dotenv().ok();
-    tracing_subscriber::fmt().init();
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::INFO)
+        .init();
     let config = Config::from_env().unwrap_or_else(|e| {
         tracing::error!("Configuration Error {e}");
         std::process::exit(1);
@@ -94,7 +96,7 @@ async fn main() {
         let bot = bot.clone();
         let checked_pairs = Arc::clone(&checked_pairs);
         let provider_balancer = Arc::clone(&provider_balancer);
-        
+
         let server = provider_balancer
             .get_next_server()
             .await

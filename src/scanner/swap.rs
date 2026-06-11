@@ -148,7 +148,7 @@ pub async fn decode_swap<P: Provider>(
 
         // Less than 10k tokens to be abandoned
         if marketcap_usd < 10000f64 {
-            return
+            return;
         }
 
         {
@@ -159,6 +159,32 @@ pub async fn decode_swap<P: Provider>(
             }
             pairs.insert(pair_address);
         }
+
+        // Socials
+        let website_link = dex_data
+            .website
+            .as_ref()
+            .map(|u| format!("<a href=\"{}\">🌐 Website</a>", u))
+            .unwrap_or_default();
+
+        let x_link = dex_data
+            .x
+            .as_ref()
+            .map(|u| format!("<a href=\"{}\">𝕏 Twitter</a>", u))
+            .unwrap_or_default();
+
+        let telegram_link = dex_data
+            .telegram
+            .as_ref()
+            .map(|u| format!("<a href=\"{}\">✈️ Telegram</a>", u))
+            .unwrap_or_default();
+
+        let socials = [website_link, x_link, telegram_link]
+            .iter()
+            .filter(|s| !s.is_empty())
+            .cloned()
+            .collect::<Vec<_>>()
+            .join(" • ");
 
         let token_info = TokenInfo {
             name: token_meta.name,
@@ -200,6 +226,7 @@ pub async fn decode_swap<P: Provider>(
             price_change_5m: dex_data.price_change_5m,
             price_change_1h: dex_data.price_change_1h,
             volatility,
+            socials,
         };
 
         // Send the Message to TELEGRAM

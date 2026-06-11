@@ -7,7 +7,9 @@ use teloxide::{
 use url::Url;
 
 use crate::{
-    config::Config, types::TokenInfo, utils::helpers::{format_number, volatility_label}
+    config::Config,
+    types::TokenInfo,
+    utils::helpers::{format_number, volatility_label},
 };
 
 pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo) {
@@ -24,12 +26,10 @@ pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo) {
     ┗ 6h:  ${v6h}  •  24h: ${v24h}\n\
     \n\
     🔄 <b>Transactions</b>\n\
-    ┣ 5m:  🟢 {b5m} / 🔴 {s5m}\n\
-    ┣ 1h:  🟢 {b1h} / 🔴 {s1h}\n\
-    ┣ 6h:  🟢 {b6h} / 🔴 {s6h}\n\
-    ┗ 24h: 🟢 {b24h} / 🔴 {s24h}\n\
-    \n\
-    💹 Buy Ratio: <b>{ratio:.0}%</b> • 👥 Uniq Buyers: <b>{uniq}</b>\n\
+    ┣ 5m:  \t🟢 {b5m} / 🔴 {s5m}\n\
+    ┣ 1h:  \t🟢 {b1h} / 🔴 {s1h}\n\
+    ┣ 6h:  \t🟢 {b6h} / 🔴 {s6h}\n\
+    ┗ 24h: \t🟢 {b24h} / 🔴 {s24h}\n\
     \n\
     🏁 Verified: {verified} • 🏠 Renounced: {renounced}\n\
     🔒 LP Lock: {lp} • 🍯 Honeypot: {hp}\n\
@@ -37,6 +37,8 @@ pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo) {
     \n\
     👩‍🍳 Deployer: <code>{deployer}</code>\n\
     📅 Age: <b>{age} days</b> • 🆕 Fresh: {fresh} • ⚠️ Bad Rep: {rep}\n\
+    \n\
+    🔗 {socials}\n\
     \n\
     <a href=\"https://www.dextools.io/app/en/ether/pair-explorer/{address}\">Dextools</a> • \
     <a href=\"https://dexscreener.com/ethereum/{address}\">DexScreener</a> • \
@@ -66,8 +68,8 @@ pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo) {
         s6h = token_info.sells_6h,
         b24h = token_info.buys_24h,
         s24h = token_info.sells_24h,
-        ratio = token_info.buy_ratio * 100.0,
-        uniq = token_info.unique_buyers_count,
+        // ratio = token_info.buy_ratio * 100.0,
+        // uniq = token_info.unique_buyers_count,
         verified = if token_info.verified { "✅" } else { "❌" },
         renounced = if token_info.renounced { "✅" } else { "❌" },
         lp = if token_info.lp_locked { "✅" } else { "❌" },
@@ -89,6 +91,11 @@ pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo) {
             "⚠️ Yes"
         } else {
             "✅ No"
+        },
+        socials = if token_info.socials.is_empty() {
+            "No socials".to_string()
+        } else {
+            token_info.socials
         },
     );
 

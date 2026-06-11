@@ -10,6 +10,22 @@ pub async fn get_dexscreener_data(pair_address: &Address) -> Option<DexscreenerV
 
     let res: serde_json::Value = reqwest::get(&url).await.ok()?.json().await.ok()?;
     let pair = &res["pair"];
+    let socials = &pair["info"]["socials"];
+    let websites = &pair["info"]["websites"];
+
+    let website = websites[0]["url"].as_str().map(|s| s.to_string());
+
+    let x = socials
+        .as_array()
+        .and_then(|arr| arr.iter().find(|s| s["type"] == "twitter"))
+        .and_then(|s| s["url"].as_str())
+        .map(|s| s.to_string());
+
+    let telegram = socials
+        .as_array()
+        .and_then(|arr| arr.iter().find(|s| s["type"] == "telegram"))
+        .and_then(|s| s["url"].as_str())
+        .map(|s| s.to_string());
 
     Some(DexscreenerVolume {
         price_usd: pair["priceUsd"]
@@ -35,6 +51,9 @@ pub async fn get_dexscreener_data(pair_address: &Address) -> Option<DexscreenerV
         price_change_6h: pair["priceChange"]["h6"].as_f64().unwrap_or(0.0),
         price_change_24h: pair["priceChange"]["h24"].as_f64().unwrap_or(0.0),
         holder_count: pair["info"]["holders"].as_u64().unwrap_or(0),
+        website,
+        x,
+        telegram,
     })
 }
 
