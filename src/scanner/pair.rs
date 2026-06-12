@@ -18,7 +18,8 @@ where
         let token_address = if token0 == WETH { token1 } else { token0 };
 
         // check if the token has enough liquidity
-        if !has_enough_liquidity(provider, pair_address, token_address).await {
+        let has_liquidity = has_enough_liquidity(provider, pair_address, token_address).await;
+        if !has_liquidity {
             return None;
         }
 

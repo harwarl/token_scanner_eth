@@ -59,19 +59,19 @@ pub async fn analyze_block<P>(
                 }
             }
 
-            // Decode Pair
-            if let Some(partial) = scanner::pair::decode_pair(&provider, log).await {
-                pipeline::run_pipeline(
-                    &provider,
-                    pair_address,
-                    Arc::clone(&checked_pairs),
-                    partial,
-                    bot,
-                    etherscan_client,
-                )
-                .await;
-                continue;
-            };
+            // Decode Pair Obsolete since the goal is to decode fresh Mints
+            // if let Some(partial) = scanner::pair::decode_pair(&provider, log).await {
+            //     pipeline::run_pipeline(
+            //         &provider,
+            //         pair_address,
+            //         Arc::clone(&checked_pairs),
+            //         partial,
+            //         bot,
+            //         etherscan_client,
+            //     )
+            //     .await;
+            //     continue;
+            // };
 
             // For swap — need token0/token1 from contract
             let pair = IUniswapV2Pair::new(pair_address, &provider);
@@ -95,6 +95,22 @@ pub async fn analyze_block<P>(
                 continue;
             }
 
+            // DECODE MINT
+            if let Some(partial) = scanner::mint::decode_mint(&provider, log, token0, token1).await
+            {
+                pipeline::run_pipeline(
+                    &provider,
+                    pair_address,
+                    Arc::clone(&checked_pairs),
+                    partial,
+                    bot,
+                    etherscan_client,
+                )
+                .await;
+                continue;
+            }
+
+            // DECODE SWAP
             if let Some(partial) = scanner::swap::decode_swap(
                 log,
                 pair_address,
