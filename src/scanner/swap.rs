@@ -35,6 +35,8 @@ pub async fn decode_swap<P: Provider>(
     etherscan_client: &EtherscanClient,
 ) {
     // Check if the hashed set contains the pair address, if it does, skip processing this log to avoid duplicate processing of the same pair in the same block
+
+    // TODO: should be outside this function
     {
         // Get the pairs in checked_pairs
         let pairs = checked_pairs.read().unwrap();

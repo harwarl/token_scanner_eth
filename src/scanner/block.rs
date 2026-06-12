@@ -10,9 +10,8 @@ use alloy::{
 use teloxide::Bot;
 
 use crate::{
-    config,
     etherscan::client::EtherscanClient,
-    provider, scanner,
+    scanner,
     utils::{
         constant::WETH,
         contracts::IUniswapV2Pair,
@@ -63,7 +62,7 @@ pub async fn analyze_block<P>(
                 Err(_) => continue,
             };
 
-            // compair the log address with the computed pair address to filter out irrelevant logs
+            // compare the log address with the computed pair address to filter out irrelevant logs
             let computed_pair_address = helpers::get_univ2_pair_address(&token0, &token1);
 
             if computed_pair_address != pair_address {
@@ -83,6 +82,15 @@ pub async fn analyze_block<P>(
                 &provider,
                 token0,
                 token1,
+                bot,
+                etherscan_client,
+            )
+            .await;
+
+            // Decode as a new pair
+            scanner::pair::decode_pair(
+                &provider,
+                log,
                 bot,
                 etherscan_client,
             )
