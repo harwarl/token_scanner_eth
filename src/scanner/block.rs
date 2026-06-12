@@ -11,7 +11,7 @@ use teloxide::Bot;
 
 use crate::{
     etherscan::client::EtherscanClient,
-    scanner,
+    scanner::{self, pipeline},
     utils::{
         constant::WETH,
         contracts::IUniswapV2Pair,
@@ -61,7 +61,15 @@ pub async fn analyze_block<P>(
 
             // Decode Pair
             if let Some(partial) = scanner::pair::decode_pair(&provider, log).await {
-                // TODO: call the pipeline
+                pipeline::run_pipeline(
+                    &provider,
+                    pair_address,
+                    Arc::clone(&checked_pairs),
+                    partial,
+                    bot,
+                    etherscan_client,
+                )
+                .await;
                 continue;
             };
 
@@ -97,6 +105,15 @@ pub async fn analyze_block<P>(
             )
             .await
             {
+                pipeline::run_pipeline(
+                    &provider,
+                    pair_address,
+                    Arc::clone(&checked_pairs),
+                    partial,
+                    bot,
+                    etherscan_client,
+                )
+                .await;
                 continue;
             }
             // Decode as a Swap Event from Uniswap V2 Pair

@@ -1,6 +1,5 @@
 use std::{
-    collections::HashSet,
-    sync::{Arc, RwLock},
+    collections::HashSet
 };
 
 use crate::{
@@ -31,7 +30,7 @@ pub async fn decode_swap<P: Provider>(
         let filter = Filter::new()
             .address(pair_address)
             .event_signature(swap_topic)
-            .from_block(block_number - 2)
+            .from_block(block_number - 5)
             .to_block(block_number);
 
         let logs = match provider.get_logs(&filter).await {
@@ -72,7 +71,7 @@ pub async fn decode_swap<P: Provider>(
             }
         }
 
-        if buy_counts < 20 {
+        if buy_counts < 25 {
             return None;
         }
 

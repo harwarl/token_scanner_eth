@@ -1,5 +1,5 @@
 use alloy::{
-    primitives::{Address, B256, U128, keccak256},
+    primitives::{Address, B256, keccak256},
     providers::Provider,
     rpc::types::Block,
 };

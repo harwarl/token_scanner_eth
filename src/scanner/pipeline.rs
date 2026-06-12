@@ -1,9 +1,9 @@
-use std::sync::{Arc, RwLock};
-
-use alloy::{
-    primitives::{Address, map::HashSet},
-    providers::Provider,
+use std::{
+    collections::HashSet,
+    sync::{Arc, RwLock},
 };
+
+use alloy::{primitives::Address, providers::Provider};
 use teloxide::Bot;
 
 use crate::{
@@ -22,7 +22,7 @@ pub async fn run_pipeline<P>(
     checked_pairs: Arc<RwLock<HashSet<Address>>>,
     token_info: PartialTokenInfo,
     bot: &Bot,
-    etherscan_client: EtherscanClient,
+    etherscan_client: &EtherscanClient,
 ) where
     P: Provider,
 {

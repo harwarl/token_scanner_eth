@@ -9,7 +9,7 @@ use alloy::{
 use crate::{
     types::TokenMetaInfo,
     utils::{
-        constant::{DEAD1, DEAD2, WETH},
+        constant::{DEAD1, DEAD2},
         contracts::IERC20,
     },
 };
