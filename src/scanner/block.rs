@@ -10,9 +10,8 @@ use alloy::{
 use teloxide::Bot;
 
 use crate::{
-    config,
     etherscan::client::EtherscanClient,
-    provider, scanner,
+    scanner::{self, pipeline},
     utils::{
         constant::WETH,
         contracts::IUniswapV2Pair,
@@ -51,42 +50,73 @@ pub async fn analyze_block<P>(
 
         for log in txn_receipts.logs() {
             let pair_address: Address = log.address();
-            let pair = IUniswapV2Pair::new(pair_address, &provider);
 
+            // Move to the next log if the pair has already been processed
+            {
+                let pairs = checked_pairs.read().unwrap();
+                if pairs.contains(&pair_address) {
+                    continue;
+                }
+            }
+
+            // Decode Pair
+            if let Some(partial) = scanner::pair::decode_pair(&provider, log).await {
+                pipeline::run_pipeline(
+                    &provider,
+                    pair_address,
+                    Arc::clone(&checked_pairs),
+                    partial,
+                    bot,
+                    etherscan_client,
+                )
+                .await;
+                continue;
+            };
+
+            // For swap — need token0/token1 from contract
+            let pair = IUniswapV2Pair::new(pair_address, &provider);
             let token0 = match pair.token0().call().await {
                 Ok(token) => token,
                 Err(_) => continue,
             };
-
             let token1 = match pair.token1().call().await {
                 Ok(token) => token,
                 Err(_) => continue,
             };
 
-            // compair the log address with the computed pair address to filter out irrelevant logs
-            let computed_pair_address = helpers::get_univ2_pair_address(&token0, &token1);
-
-            if computed_pair_address != pair_address {
-                continue;
-            }
-
+            // Filter out non WETH pairs early
             if token0 != WETH && token1 != WETH {
                 continue;
             }
 
-            // Decode as a Swap Event from Uniswap V2 Pair
-            scanner::swap::decode_swap(
+            // Validate it's actually a uniswap v2 pair
+            let computed_pair_address = helpers::get_univ2_pair_address(&token0, &token1);
+            if computed_pair_address != pair_address {
+                continue;
+            }
+
+            if let Some(partial) = scanner::swap::decode_swap(
                 log,
                 pair_address,
-                Arc::clone(&checked_pairs),
                 block_number,
                 &provider,
                 token0,
                 token1,
-                bot,
-                etherscan_client,
             )
-            .await;
+            .await
+            {
+                pipeline::run_pipeline(
+                    &provider,
+                    pair_address,
+                    Arc::clone(&checked_pairs),
+                    partial,
+                    bot,
+                    etherscan_client,
+                )
+                .await;
+                continue;
+            }
+            // Decode as a Swap Event from Uniswap V2 Pair
         }
     }
 }

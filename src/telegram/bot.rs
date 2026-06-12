@@ -68,8 +68,6 @@ pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo) {
         s6h = token_info.sells_6h,
         b24h = token_info.buys_24h,
         s24h = token_info.sells_24h,
-        // ratio = token_info.buy_ratio * 100.0,
-        // uniq = token_info.unique_buyers_count,
         verified = if token_info.verified { "✅" } else { "❌" },
         renounced = if token_info.renounced { "✅" } else { "❌" },
         lp = if token_info.lp_locked { "✅" } else { "❌" },

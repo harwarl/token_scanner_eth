@@ -33,7 +33,7 @@ async fn main() {
         .with_env_filter(EnvFilter::from_default_env())
         .with_ansi(false)
         .init();
-    
+
     let config = Config::from_env().unwrap_or_else(|e| {
         tracing::error!("Configuration Error {e}");
         std::process::exit(1);

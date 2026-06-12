@@ -6,7 +6,10 @@ use alloy::{
 
 use hex::decode;
 
-use crate::utils::constant::UNISWAP_FACTORY;
+use crate::utils::{
+    constant::{MIN_ETH_LIQUIDITY, UNISWAP_FACTORY, WETH},
+    contracts::IUniswapV2Pair,
+};
 
 pub fn get_univ2_pair_address(token_a: &Address, token_b: &Address) -> Address {
     let (token0, token1) = if token_a < token_b {
@@ -94,6 +97,38 @@ where
                 .ok_or_else(|| eyre::eyre!("Block {} not found on fallback", block_number))
         }
     }
+}
+
+pub async fn has_enough_liquidity<P>(provider: &P, pair_address: Address, token0: Address) -> bool
+where
+    P: Provider,
+{
+    let pair = IUniswapV2Pair::new(pair_address, provider);
+
+    let (reserve0, reserve1) = match pair.getReserves().call().await {
+        Ok(r) => (r._reserve0, r._reserve1),
+        Err(e) => {
+            tracing::warn!("Failed to get reserves for {:?}: {e}", pair_address);
+            return false;
+        }
+    };
+
+    let eth_reserve = if token0 == WETH {
+        reserve0.to::<u128>()
+    } else {
+        reserve1.to::<u128>()
+    };
+
+    if eth_reserve < MIN_ETH_LIQUIDITY {
+        tracing::info!(
+            "Skipping low liquidity pair {:?}: {} wei ETH",
+            pair_address,
+            eth_reserve
+        );
+        return false;
+    }
+
+    true
 }
 
 #[cfg(test)]

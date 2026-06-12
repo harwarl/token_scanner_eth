@@ -15,17 +15,12 @@ pub struct TokenInfo {
     pub market_cap_usd: f64,
     pub honeypot: bool,
     pub deployer: Address,
-    pub buy_count: u32,
-    pub total_swaps: u32,
-    pub buy_ratio: f64,
     pub deployer_age_days: u64,
     pub is_fresh_wallet: bool,
     pub bad_reputation: bool,
     pub contract_name: String,
     pub mcap_to_liq_ratio: f64,
-    pub unique_buyers_count: u32,
     pub holder_count: u64,
-    pub volume_usd: u64,
     // Volume
     pub volume_5m: f64,
     pub volume_1h: f64,
@@ -52,10 +47,26 @@ pub struct TokenInfo {
     pub socials: String,
 }
 
+#[derive(Debug)]
+pub struct PartialTokenInfo {
+    pub token_address: Address,
+    pub pair_address: Address,
+    pub token0: Address,
+    pub token1: Address,
+
+    // From token contract calls
+    pub name: String,
+    pub symbol: String,
+    pub total_supply: f64,
+    pub renounced: bool,
+    pub deployer: Address,
+}
+
 #[derive(Debug, Clone)]
 pub struct TokenMetaInfo {
     pub name: String,
     pub address: Address,
+    pub symbol: String,
     pub total_supply: U256,
     pub total_supply_formatted: f64,
     pub decimals: u8,
