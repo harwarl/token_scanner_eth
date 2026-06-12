@@ -97,7 +97,6 @@ pub async fn analyze_block<P>(
             )
             .await
             {
-                
                 continue;
             }
             // Decode as a Swap Event from Uniswap V2 Pair

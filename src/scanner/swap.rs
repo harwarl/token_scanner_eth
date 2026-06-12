@@ -4,16 +4,9 @@ use std::{
 };
 
 use crate::{
-    decscreener::token_details::get_dexscreener_data,
-    etherscan::client::EtherscanClient,
-    lplock::lp_lock::is_lp_locked,
-    telegram,
-    token::{
-        honeypot::get_honey_pot,
-        info::{get_deployer, get_token_info},
-    },
-    types::{PartialTokenInfo, TokenInfo},
-    utils::{constant::WETH, contracts::IUniswapV2Pair, helpers::calculate_volatility},
+    token::info::get_token_info,
+    types::PartialTokenInfo,
+    utils::{constant::WETH, contracts::IUniswapV2Pair},
 };
 use alloy::{
     primitives::{Address, U256, b256},
@@ -21,7 +14,6 @@ use alloy::{
     rpc::types::{Filter, Log},
     sol_types::SolEvent,
 };
-use teloxide::Bot;
 
 pub async fn decode_swap<P: Provider>(
     log: &Log,
@@ -82,7 +74,7 @@ pub async fn decode_swap<P: Provider>(
 
         if buy_counts < 20 {
             return None;
-        };
+        }
 
         let token = if token0 == WETH { token1 } else { token0 };
         let token_info = get_token_info(provider, token).await;
