@@ -95,6 +95,22 @@ pub async fn analyze_block<P>(
                 continue;
             }
 
+            // DECODE MINT
+            if let Some(partial) = scanner::mint::decode_mint(&provider, log, token0, token1).await
+            {
+                pipeline::run_pipeline(
+                    &provider,
+                    pair_address,
+                    Arc::clone(&checked_pairs),
+                    partial,
+                    bot,
+                    etherscan_client,
+                )
+                .await;
+                continue;
+            }
+
+            // DECODE SWAP
             if let Some(partial) = scanner::swap::decode_swap(
                 log,
                 pair_address,
