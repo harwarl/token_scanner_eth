@@ -1,17 +1,9 @@
-use alloy::{
-    providers::Provider,
-    rpc::types::Log,
-    sol_types::SolEvent,
-};
+use alloy::{providers::Provider, rpc::types::Log, sol_types::SolEvent};
 
 use crate::{
     token::info::get_token_info,
     types::PartialTokenInfo,
-    utils::{
-        constant::WETH,
-        contracts::IUniswapV2Factory,
-        helpers::has_enough_liquidity,
-    },
+    utils::{constant::WETH, contracts::IUniswapV2Factory, helpers::has_enough_liquidity},
 };
 
 pub async fn decode_pair<P>(provider: &P, log: &Log) -> Option<PartialTokenInfo>
@@ -31,7 +23,7 @@ where
         }
 
         // Get onchain Token info
-        let token_info = get_token_info(provider, token0, token1).await;
+        let token_info = get_token_info(provider, token_address).await;
 
         return Some(PartialTokenInfo {
             token_address,

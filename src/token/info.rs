@@ -14,14 +14,8 @@ use crate::{
     },
 };
 
-pub async fn get_token_info<P: Provider>(
-    provider: &P,
-    token0: Address,
-    token1: Address,
-) -> TokenMetaInfo {
-    let token = if token0 == WETH { token1 } else { token0 };
-
-    let contract = IERC20::new(token, provider);
+pub async fn get_token_info<P: Provider>(provider: &P, token_address: Address) -> TokenMetaInfo {
+    let contract = IERC20::new(token_address, provider);
 
     // Token Name
     let token_name = contract
@@ -64,7 +58,7 @@ pub async fn get_token_info<P: Provider>(
 
     TokenMetaInfo {
         name: token_name,
-        address: token,
+        address: token_address,
         symbol,
         total_supply,
         total_supply_formatted,
