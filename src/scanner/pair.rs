@@ -11,7 +11,6 @@ where
     P: Provider,
 {
     if let Ok(new_pair_event) = IUniswapV2Factory::PairCreated::decode_log(log.inner.as_ref()) {
-        println!("Decoded pair");
         let pair_address = new_pair_event.pair;
         let token0 = new_pair_event.token0;
         let token1 = new_pair_event.token1;
@@ -20,7 +19,6 @@ where
 
         // check if the token has enough liquidity
         let has_liquidity = has_enough_liquidity(provider, pair_address, token_address).await;
-        println!("Has Liquidity: {has_liquidity}");
         if !has_liquidity {
             return None;
         }
