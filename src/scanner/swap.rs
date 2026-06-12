@@ -35,8 +35,6 @@ pub async fn decode_swap<P: Provider>(
     etherscan_client: &EtherscanClient,
 ) {
     // Check if the hashed set contains the pair address, if it does, skip processing this log to avoid duplicate processing of the same pair in the same block
-
-    // TODO: should be outside this function
     {
         // Get the pairs in checked_pairs
         let pairs = checked_pairs.read().unwrap();
@@ -64,7 +62,7 @@ pub async fn decode_swap<P: Provider>(
         let buy_counts = 0u32;
         let total_swaps = 0u32;
         let unique_buyers: HashSet<Address> = HashSet::new();
-        // let mut volume_usd = 0.0f64;
+
 
         // for past_log in logs {
         //     if let Ok(past_swap_event) = IUniswapV2Pair::Swap::decode_log(past_log.inner.as_ref()) {

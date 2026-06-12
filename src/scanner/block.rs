@@ -91,8 +91,6 @@ pub async fn analyze_block<P>(
             scanner::pair::decode_pair(
                 &provider,
                 log,
-                bot,
-                etherscan_client,
             )
             .await;
         }

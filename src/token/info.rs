@@ -30,6 +30,10 @@ pub async fn get_token_info<P: Provider>(
         .await
         .unwrap_or_else(|_| "Unknown".to_string());
 
+    let symbol = contract.symbol().call()
+        .await
+        .unwrap_or_else(|_| "Ukn".to_string());
+
     // Total Supply
     let total_supply = contract
         .totalSupply()
@@ -59,6 +63,7 @@ pub async fn get_token_info<P: Provider>(
     TokenMetaInfo {
         name: token_name,
         address: token,
+        symbol,
         total_supply,
         total_supply_formatted,
         decimals,

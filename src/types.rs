@@ -52,10 +52,27 @@ pub struct TokenInfo {
     pub socials: String,
 }
 
+
+#[derive(Debug)]
+pub struct PartialTokenInfo{
+    pub token_address: Address,
+    pub pair_address: Address,
+    pub token0: Address,
+    pub token1: Address,
+    
+    // From token contract calls
+    pub name: String,
+    pub symbol: String,
+    pub total_supply: f64,
+    pub renounced: bool,
+    pub deployer: Address,
+}
+
 #[derive(Debug, Clone)]
 pub struct TokenMetaInfo {
     pub name: String,
     pub address: Address,
+    pub symbol: String,
     pub total_supply: U256,
     pub total_supply_formatted: f64,
     pub decimals: u8,
