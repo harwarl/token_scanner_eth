@@ -63,7 +63,6 @@ pub async fn decode_swap<P: Provider>(
         let total_swaps = 0u32;
         let unique_buyers: HashSet<Address> = HashSet::new();
 
-
         // for past_log in logs {
         //     if let Ok(past_swap_event) = IUniswapV2Pair::Swap::decode_log(past_log.inner.as_ref()) {
         //         total_swaps += 1;

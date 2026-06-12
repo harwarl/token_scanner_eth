@@ -30,7 +30,9 @@ pub async fn get_token_info<P: Provider>(
         .await
         .unwrap_or_else(|_| "Unknown".to_string());
 
-    let symbol = contract.symbol().call()
+    let symbol = contract
+        .symbol()
+        .call()
         .await
         .unwrap_or_else(|_| "Ukn".to_string());
 

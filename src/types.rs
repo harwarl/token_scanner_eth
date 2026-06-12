@@ -52,14 +52,13 @@ pub struct TokenInfo {
     pub socials: String,
 }
 
-
 #[derive(Debug)]
-pub struct PartialTokenInfo{
+pub struct PartialTokenInfo {
     pub token_address: Address,
     pub pair_address: Address,
     pub token0: Address,
     pub token1: Address,
-    
+
     // From token contract calls
     pub name: String,
     pub symbol: String,

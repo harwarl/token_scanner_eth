@@ -88,11 +88,7 @@ pub async fn analyze_block<P>(
             .await;
 
             // Decode as a new pair
-            scanner::pair::decode_pair(
-                &provider,
-                log,
-            )
-            .await;
+            scanner::pair::decode_pair(&provider, log).await;
         }
     }
 }

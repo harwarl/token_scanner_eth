@@ -1,22 +1,20 @@
 use alloy::{
-    primitives::Address,
     providers::Provider,
     rpc::types::Log,
-    sol_types::{SolCall, SolEvent},
+    sol_types::SolEvent,
 };
-use teloxide::Bot;
 
 use crate::{
-    etherscan::client::EtherscanClient, scanner::pair, token::info::get_token_info, types::{PartialTokenInfo, TokenMetaInfo}, utils::{
+    token::info::get_token_info,
+    types::PartialTokenInfo,
+    utils::{
         constant::WETH,
-        contracts::{IUniswapV2Factory, IUniswapV2Pair::getReservesCall}, helpers::has_enough_liquidity,
-    }
+        contracts::IUniswapV2Factory,
+        helpers::has_enough_liquidity,
+    },
 };
 
-pub async fn decode_pair<P>(
-    provider: &P,
-    log: &Log,
-) -> Option<PartialTokenInfo>
+pub async fn decode_pair<P>(provider: &P, log: &Log) -> Option<PartialTokenInfo>
 where
     P: Provider,
 {
@@ -33,21 +31,19 @@ where
         }
 
         // Get onchain Token info
-        let token_info= get_token_info(provider, token0, token1).await;
+        let token_info = get_token_info(provider, token0, token1).await;
 
-        return Some(
-            PartialTokenInfo {
-                token_address,
-                pair_address,
-                token0,
-                token1,
-                name: token_info.name,
-                symbol: token_info.symbol,
-                total_supply: token_info.total_supply_formatted,
-                renounced: token_info.renounced, 
-                deployer: token_info.owner
-            }
-        )
+        return Some(PartialTokenInfo {
+            token_address,
+            pair_address,
+            token0,
+            token1,
+            name: token_info.name,
+            symbol: token_info.symbol,
+            total_supply: token_info.total_supply_formatted,
+            renounced: token_info.renounced,
+            deployer: token_info.owner,
+        });
     }
     None
 }
