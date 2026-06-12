@@ -70,7 +70,7 @@ pub async fn decode_swap<P: Provider>(
             }
         }
 
-        if buy_counts < 25 {
+        if buy_counts < 20 {
             return None;
         }
 

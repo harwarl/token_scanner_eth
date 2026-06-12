@@ -19,7 +19,7 @@ where
     P: Provider,
 {
     if let Ok(mint_event) = IUniswapV2Pair::Mint::decode_log(&log.inner.as_ref()) {
-        println!("Decoded mint");
+        
         let pair_address = log.address();
 
         // Check liquidity directly from the Mint event — no getReserves needed
