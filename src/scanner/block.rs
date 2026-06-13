@@ -13,7 +13,7 @@ use crate::{
     etherscan::client::EtherscanClient,
     scanner::{self, pipeline},
     utils::{
-        constant::WETH,
+        constant::{UNISWAP_V4_POOL_MANAGER, WETH},
         contracts::IUniswapV2Pair,
         helpers::{self, get_block},
     },
@@ -49,12 +49,28 @@ pub async fn analyze_block<P>(
         }
 
         for log in txn_receipts.logs() {
-            let pair_address: Address = log.address();
+            let log_address: Address = log.address();
 
             // Move to the next log if the pair has already been processed
             {
                 let pairs = checked_pairs.read().unwrap();
-                if pairs.contains(&pair_address) {
+                if pairs.contains(&log_address) {
+                    continue;
+                }
+            }
+
+            // ========== Uniswap V4 ==========
+            if log_address == UNISWAP_V4_POOL_MANAGER {
+                if let Some(partial) = scanner::pool::decode_pool(log, &provider).await {
+                    pipeline::run_pipeline(
+                        &provider,
+                        log_address,
+                        Arc::clone(&checked_pairs),
+                        partial,
+                        bot,
+                        etherscan_client,
+                    )
+                    .await;
                     continue;
                 }
             }
@@ -63,7 +79,7 @@ pub async fn analyze_block<P>(
             // if let Some(partial) = scanner::pair::decode_pair(&provider, log).await {
             //     pipeline::run_pipeline(
             //         &provider,
-            //         pair_address,
+            //         log_address,
             //         Arc::clone(&checked_pairs),
             //         partial,
             //         bot,
@@ -74,7 +90,7 @@ pub async fn analyze_block<P>(
             // };
 
             // For swap — need token0/token1 from contract
-            let pair = IUniswapV2Pair::new(pair_address, &provider);
+            let pair = IUniswapV2Pair::new(log_address, &provider);
             let token0 = match pair.token0().call().await {
                 Ok(token) => token,
                 Err(_) => continue,
@@ -91,7 +107,7 @@ pub async fn analyze_block<P>(
 
             // Validate it's actually a uniswap v2 pair
             let computed_pair_address = helpers::get_univ2_pair_address(&token0, &token1);
-            if computed_pair_address != pair_address {
+            if computed_pair_address != log_address {
                 continue;
             }
 
@@ -100,7 +116,7 @@ pub async fn analyze_block<P>(
             {
                 pipeline::run_pipeline(
                     &provider,
-                    pair_address,
+                    log_address,
                     Arc::clone(&checked_pairs),
                     partial,
                     bot,
@@ -113,7 +129,7 @@ pub async fn analyze_block<P>(
             // DECODE SWAP
             if let Some(partial) = scanner::swap::decode_swap(
                 log,
-                pair_address,
+                log_address,
                 block_number,
                 &provider,
                 token0,
@@ -123,7 +139,7 @@ pub async fn analyze_block<P>(
             {
                 pipeline::run_pipeline(
                     &provider,
-                    pair_address,
+                    log_address,
                     Arc::clone(&checked_pairs),
                     partial,
                     bot,

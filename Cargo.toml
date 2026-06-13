@@ -11,7 +11,6 @@ categories = ["cryptography::cryptocurrencies", "network-programming"]
 
 [dependencies]
 tracing = "0.1"
-ethers = "2.0.14"
 serde_json = "1.0.150"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 tokio = {version = "1.52.3", features = ["full"]}

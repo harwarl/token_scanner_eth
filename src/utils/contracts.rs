@@ -20,3 +20,10 @@ sol!(
     IUniswapV2Factory,
     "abi/IUniswapV2Factory.json"
 );
+
+sol!(
+    #[allow(missing_docs)]
+    #[sol(rpc)]
+    IUniswapPoolManager,
+    "abi/IUniswap_V4.json"
+);
