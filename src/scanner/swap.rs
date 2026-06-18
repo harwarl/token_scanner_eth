@@ -69,8 +69,7 @@ pub async fn decode_swap<P: Provider>(
             }
         }
 
-        println!("Buy count: {:?}", buy_counts);
-        if buy_counts < 5 {
+        if buy_counts < 20 {
             return None;
         }
 

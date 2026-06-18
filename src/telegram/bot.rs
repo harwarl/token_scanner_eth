@@ -1,3 +1,4 @@
+use chrono::{Timelike, Utc};
 use teloxide::{
     Bot,
     payloads::SendMessageSetters,
@@ -13,8 +14,18 @@ use crate::{
 };
 
 pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo) {
+    let now = Utc::now();
+    let hour = now.hour();
+    let greeting = match hour {
+        5..=10 => "🌅",
+        17..=19 => "🌆",
+        _ => "🌞",
+    };
+
+    let time_str = format!("{:02}:{:02} UTC", now.hour(), now.minute());
     let message = format!(
-        "🌞 <b>{name}</b> • <code>{address}</code>\n\
+        "
+        {greeting} <b>{name}</b> • <code>{address}</code> • <b>{time}</b>\n\
     \n\
     🏆 MCap: <b>${mcap}</b> • 💧 Liq: <b>${liq}</b> • 📊 M/L: <b>{ml:.2}x</b>\n\
     💵 Price: <b>${price:.8}</b> • 5m: <b>{pc5m:+.1}%</b> • 1h: <b>{pc1h:+.1}%</b>\n\
@@ -45,6 +56,8 @@ pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo) {
     <a href=\"https://dexspy.io/eth/token/{address}\">DexSpy</a> • \
     <a href=\"https://www.dexview.com/eth/{address}\">DexView</a> • \
     <a href=\"https://x.com/search?q=%24{name}+OR+{address}&src=typed_query&f=live\">𝕏</a>",
+        greeting = greeting,
+        time = time_str,
         name = token_info.name,
         address = token_info.address,
         mcap = format_number(token_info.market_cap_usd),
