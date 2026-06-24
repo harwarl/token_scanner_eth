@@ -36,7 +36,7 @@ pub async fn run_pipeline<P>(
     }
 
     // Get Token Info
-    let dex_data = get_dexscreener_data(&token_info.pair_address).await;
+    let dex_data = get_dexscreener_data(&token_info.pair_address, chain_id).await;
     let dex_data = match dex_data {
         Some(data) => data,
         None => return,
