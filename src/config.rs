@@ -9,6 +9,8 @@ pub enum ConfigError {
     MissingVar(String),
     #[error("Invalid URL format for {field}: {message}")]
     InvalidUrl { field: String, message: String },
+    #[error("Invalid Chain Id: {0}")]
+    InvalidChainId(String)
 }
 
 #[derive(Debug, Clone)]
@@ -18,15 +20,22 @@ pub struct Config {
     pub bot: Bot,
     pub etherscan_api_key: String,
     pub chat_id: i64,
+    pub chain_id: i32
 }
 
 impl Config {
     pub fn from_env() -> Result<Self, ConfigError> {
-        let rpc_url =
-            env::var("RPC_URL").map_err(|_| ConfigError::MissingVar("RPC_URL".to_string()))?;
+        let eth_rpc_url =
+            env::var("ETH_RPC_URL").map_err(|_| ConfigError::MissingVar("ETH_RPC_URL".to_string()))?;
 
-        let rpc_url_wss = env::var("RPC_URL_WSS")
-            .map_err(|_| ConfigError::MissingVar("RPC_URL_WSS".to_string()))?;
+        let eth_rpc_url_wss = env::var("ETH_RPC_URL_WSS")
+            .map_err(|_| ConfigError::MissingVar("ETH_RPC_URL_WSS".to_string()))?;
+
+        let base_rpc_url =
+            env::var("BASE_RPC_URL").map_err(|_| ConfigError::MissingVar("BASE_RPC_URL".to_string()))?;
+
+        let base_rpc_url_wss = env::var("BASE_RPC_URL_WSS")
+            .map_err(|_| ConfigError::MissingVar("BASE_RPC_URL_WSS".to_string()))?;
 
         let bot_token = env::var("TELOXIDE_TOKEN")
             .map_err(|_| ConfigError::MissingVar("TELOXIDE_TOKEN".to_string()))?;
@@ -37,16 +46,32 @@ impl Config {
         let chat_id =
             env::var("CHAT_ID").map_err(|_| ConfigError::MissingVar("CHAT_ID".to_string()))?;
 
-        Self::new(rpc_url, rpc_url_wss, bot_token, etherscan_api_key, chat_id)
+        let chain_id = env::var("CHAIN_ID").map_err(|_| ConfigError::MissingVar("CHAIN_ID".to_string()))?;
+
+        Self::new(eth_rpc_url, eth_rpc_url_wss, base_rpc_url, base_rpc_url_wss, bot_token, etherscan_api_key, chat_id, chain_id)
     }
 
     pub fn new(
-        rpc_url: String,
-        rpc_url_wss: String,
+        eth_rpc_url: String,
+        eth_rpc_url_wss: String,
+        base_rpc_url: String,
+        base_rpc_url_wss: String,
         bot_token: String,
         etherscan_api_key: String,
         chat_id: String,
+        chain_id: String,
     ) -> Result<Self, ConfigError> {
+        // Parse the chain_id
+        let chain_id: i32 = chain_id.parse().map_err(|_| ConfigError::InvalidChainId("failed to parse chainId".to_string()))?;
+
+        let (rpc_url, rpc_url_wss) = match chain_id {
+            1 => (eth_rpc_url, eth_rpc_url_wss),
+            8453 => (base_rpc_url, base_rpc_url_wss),
+            _ => {
+                return Err(ConfigError::InvalidChainId(format!("Invalid Chain Id: {}", chain_id)))
+            }
+        };
+        
         // Validate the Urls
         validate_url(&rpc_url, "RPC_URL")?;
         validate_wss_url(&rpc_url_wss, "RPC_URL_WSS")?;
@@ -61,6 +86,7 @@ impl Config {
             bot,
             etherscan_api_key,
             chat_id: parse_chat_id * -1,
+            chain_id
         })
     }
 
@@ -108,9 +134,12 @@ mod tests {
         let config = Config::new(
             "https://mainnet.infura.io/v3/key".to_string(),
             "wss://mainnet.infura.io/ws/v3/key".to_string(),
+            "https://mainnet.infura.io/v3/key".to_string(),
+            "wss://mainnet.infura.io/ws/v3/key".to_string(),
             "some_token".to_string(),
             "some_ether_scan_key".to_string(),
             "-2339089083209803".to_string(),
+            "1".to_string()
         );
         assert!(config.is_ok());
     }
@@ -120,9 +149,12 @@ mod tests {
         let result = Config::new(
             "wss://mainnet.infura.io".to_string(),
             "wss://mainnet.infura.io/ws".to_string(),
+            "wss://mainnet.infura.io".to_string(),
+            "wss://mainnet.infura.io/ws".to_string(),
             "some_token".to_string(),
             "some_ether_scan_key".to_string(),
             "-2339089083209803".to_string(),
+            "1".to_string()
         );
         match result {
             Err(ConfigError::InvalidUrl { field, .. }) => assert_eq!(field, "RPC_URL"),
@@ -135,9 +167,12 @@ mod tests {
         let result = Config::new(
             "https://mainnet.infura.io".to_string(),
             "https://mainnet.infura.io".to_string(),
+            "wss://mainnet.infura.io".to_string(),
+            "wss://mainnet.infura.io/ws".to_string(),
             "some_token".to_string(),
             "some_ether_scan_key".to_string(),
             "-2339089083209803".to_string(),
+            "1".to_string()
         );
         match result {
             Err(ConfigError::InvalidUrl { field, .. }) => assert_eq!(field, "RPC_URL_WSS"),
@@ -150,9 +185,12 @@ mod tests {
         let result = Config::new(
             "not_a_url".to_string(),
             "wss://mainnet.infura.io/ws".to_string(),
+            "wss://mainnet.infura.io".to_string(),
+            "wss://mainnet.infura.io/ws".to_string(),
             "some_token".to_string(),
             "some_ether_scan_key".to_string(),
             "-2339089083209803".to_string(),
+            "1".to_string()
         );
         assert!(result.is_err());
     }
@@ -162,9 +200,12 @@ mod tests {
         let result = Config::new(
             "https://mainnet.infura.io".to_string(),
             "not_a_url".to_string(),
+            "wss://mainnet.infura.io".to_string(),
+            "wss://mainnet.infura.io/ws".to_string(),
             "some_token".to_string(),
             "some_ether_scan_key".to_string(),
             "-2339089083209803".to_string(),
+            "1".to_string()
         );
         assert!(result.is_err());
     }
@@ -174,9 +215,12 @@ mod tests {
         let result = Config::new(
             "http://localhost:8545".to_string(),
             "ws://localhost:8546".to_string(),
+            "wss://mainnet.infura.io".to_string(),
+            "wss://mainnet.infura.io/ws".to_string(),
             "some_token".to_string(),
             "some_ether_scan_key".to_string(),
             "2339089083209803".to_string(),
+            "1".to_string()
         );
 
         assert!(result.is_ok());
