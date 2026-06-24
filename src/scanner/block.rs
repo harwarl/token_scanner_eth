@@ -35,43 +35,10 @@ pub async fn analyze_block<P>(
 ) where
     P: Provider,
 {
-    // let block = get_block(&provider, &fallback, block_number)
-    //     .await
-    //     .expect("Failed to get block");
-
-    // let txns = block.transactions.as_transactions().unwrap();
-
-    // let tx_hashes = match &block.transactions {
-    //     BlockTransactions::Hashes(hashes) => hashes.clone(),
-    //     _ => vec![],
-    // };
-
-    // // Fetch full transactions separately
-    // let txns: Vec<_> = futures_util::future::join_all(
-    //     tx_hashes
-    //         .iter()
-    //         .map(|hash| provider.get_transaction_by_hash(*hash)),
-    // )
-    // .await
-    // .into_iter()
-    // .flatten()
-    // .flatten()
-    // .collect();
-
     let block_log_receipts = get_block_receipts(&provider, &fallback, block_number)
         .await
         .expect("failed to get block receipts");
     for receipt in block_log_receipts {
-        // Get the transaction receipt to analyze logs and events
-        // let txn_receipts: TransactionReceipt =
-        //     match provider.get_transaction_receipt(txn.tx_hash()).await {
-        //         Ok(Some(receipt)) => receipt,
-        //         Ok(None) => continue,
-        //         Err(_) => continue,
-        //     };
-
-        // println!("tx recipts: {:?}", txn_receipts);
-
         if !receipt.status() {
             continue;
         }
