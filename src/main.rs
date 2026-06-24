@@ -7,6 +7,7 @@ use crate::{
     config::Config,
     etherscan::client::EtherscanClient,
     library::server_balancer::{LoadBalancer, Server},
+    utils::constant::ETH_FREE_RPCS,
 };
 use alloy::{primitives::Address, providers::Provider};
 use axum::{Router, routing::get};
@@ -65,25 +66,8 @@ async fn main() {
         .into_stream();
 
     let checked_pairs = Arc::new(RwLock::new(HashSet::<Address>::new()));
-    // let provider = Arc::new(wss_provider);
-    let provider_balancer = Arc::new(LoadBalancer::new(
-        1,
-        vec![
-            "https://eth.blockrazor.xyz",
-            "https://ethereum-rpc.publicnode.com",
-            "https://ethereum.public.blockpi.network/v1/rpc/public",
-            "https://0xrpc.io/eth",
-            "https://ethereum-json-rpc.stakely.io",
-            "https://rpc.fullsend.to",
-            "https://api.zan.top/eth-mainnet",
-            "https://eth.llamarpc.com",
-            "https://rpc.payload.de",
-            "https://endpoints.omniatech.io/v1/eth/mainnet/public",
-            "https://rpc.public.curie.radiumblock.co/ws/ethereum",
-            "https://rpc.polysplit.cloud/v1/chain/1",
-            "https://eth.merkle.io",
-        ],
-    ));
+    let provider_balancer = Arc::new(LoadBalancer::new(config.chain_id, config.free_rpcs));
+
     let fallback_provider = Arc::new(provider::connect(config.rpc_url.clone()).await);
     let etherscan_client = Arc::new(EtherscanClient::new(config.etherscan_api_key.clone()));
     let bot = config.get_bot();
@@ -118,6 +102,7 @@ async fn main() {
                 checked_pairs,
                 &bot,
                 &etherscan_client,
+                config.chain_id,
             )
             .await;
         });

@@ -23,6 +23,7 @@ pub async fn run_pipeline<P>(
     token_info: PartialTokenInfo,
     bot: &Bot,
     etherscan_client: &EtherscanClient,
+    chain_id: u64,
 ) where
     P: Provider,
 {

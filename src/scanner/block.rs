@@ -26,6 +26,7 @@ pub async fn analyze_block<P>(
     checked_pairs: Arc<RwLock<HashSet<Address>>>,
     bot: &Bot,
     etherscan_client: &EtherscanClient,
+    chain_id: u64,
 ) where
     P: Provider,
 {
@@ -69,6 +70,7 @@ pub async fn analyze_block<P>(
                         partial,
                         bot,
                         etherscan_client,
+                        chain_id,
                     )
                     .await;
                     continue;
@@ -121,6 +123,7 @@ pub async fn analyze_block<P>(
                     partial,
                     bot,
                     etherscan_client,
+                    chain_id,
                 )
                 .await;
                 continue;
@@ -144,6 +147,7 @@ pub async fn analyze_block<P>(
                     partial,
                     bot,
                     etherscan_client,
+                    chain_id,
                 )
                 .await;
                 continue;

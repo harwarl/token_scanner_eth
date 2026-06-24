@@ -10,13 +10,13 @@ use reqwest::Client;
 
 #[derive(Debug)]
 pub struct LoadBalancer {
-    pub chain_id: i32,
+    pub chain_id: u64,
     pub servers: Vec<Server>,
     pub current: AtomicUsize,
 }
 
 impl LoadBalancer {
-    pub fn new(chain_id: i32, urls: Vec<&str>) -> LoadBalancer {
+    pub fn new(chain_id: u64, urls: &[&str]) -> LoadBalancer {
         LoadBalancer {
             chain_id,
             servers: urls
@@ -44,7 +44,7 @@ impl LoadBalancer {
 
 #[derive(Debug, Clone)]
 pub struct Server {
-    pub chain_id: i32,
+    pub chain_id: u64,
     pub url: String,
     pub is_healthy: Arc<RwLock<bool>>,
     pub last_failed: Arc<RwLock<Option<Instant>>>,
@@ -52,7 +52,7 @@ pub struct Server {
 }
 
 impl Server {
-    pub fn new(chain_id: i32, url: String) -> Server {
+    pub fn new(chain_id: u64, url: String) -> Server {
         Server {
             chain_id,
             url,
@@ -110,7 +110,7 @@ impl Server {
         *health = healthy
     }
 
-    pub fn fallback(url: &str, chain_id: i32) -> Server {
+    pub fn fallback(url: &str, chain_id: u64) -> Server {
         Server {
             chain_id,
             url: url.to_string(),
@@ -218,7 +218,7 @@ mod tests {
             .mount(&mock2)
             .await;
 
-        let lb = LoadBalancer::new(1, vec![mock1.uri().as_str(), mock2.uri().as_str()]);
+        let lb = LoadBalancer::new(1, &[mock1.uri().as_str(), mock2.uri().as_str()]);
         let server = lb.get_next_server().await;
 
         assert!(server.is_some());
@@ -233,7 +233,7 @@ mod tests {
             .mount(&mock)
             .await;
 
-        let lb = LoadBalancer::new(1, vec![mock.uri().as_str()]);
+        let lb = LoadBalancer::new(1, &[mock.uri().as_str()]);
         assert!(lb.get_next_server().await.is_none());
     }
 
@@ -249,7 +249,7 @@ mod tests {
                 .await;
         }
 
-        let lb = LoadBalancer::new(1, vec![mock1.uri().as_str(), mock2.uri().as_str()]);
+        let lb = LoadBalancer::new(1, &[mock1.uri().as_str(), mock2.uri().as_str()]);
 
         let first = lb.get_next_server().await.unwrap().url;
         let second = lb.get_next_server().await.unwrap().url;
@@ -266,7 +266,7 @@ mod tests {
             .mount(&mock)
             .await;
 
-        let lb = LoadBalancer::new(1, vec![mock.uri().as_str()]);
+        let lb = LoadBalancer::new(1, &[mock.uri().as_str()]);
 
         // Force the counter near usize::MAX to test wrapping
         lb.current.load(Ordering::Relaxed);

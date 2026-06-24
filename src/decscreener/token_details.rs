@@ -2,9 +2,21 @@ use alloy::primitives::Address;
 
 use crate::types::DexscreenerVolume;
 
-pub async fn get_dexscreener_data(pair_address: &Address) -> Option<DexscreenerVolume> {
+pub async fn get_dexscreener_data(
+    pair_address: &Address,
+    chain_id: u64,
+) -> Option<DexscreenerVolume> {
+    let chain_name = if chain_id == 1 {
+        "ethereum"
+    } else if chain_id == 8463 {
+        "base"
+    } else {
+        return None;
+    };
+
     let url = format!(
-        "https://api.dexscreener.com/latest/dex/pairs/ethereum/{}",
+        "https://api.dexscreener.com/latest/dex/pairs/{}/{}",
+        chain_name,
         pair_address
     );
 
@@ -69,7 +81,8 @@ mod tests {
     #[tokio::test]
     async fn test_get_dexscreener_data_real_pair() {
         let address = Address::from_str(WETH_USDC_PAIR).unwrap();
-        let result = get_dexscreener_data(&address).await;
+        let chain_id = 1u64;
+        let result = get_dexscreener_data(&address, chain_id).await;
 
         assert!(result.is_some(), "Should return data for a known pair");
         let data = result.unwrap();
@@ -90,7 +103,8 @@ mod tests {
     async fn test_get_dexscreener_data_invalid_pair() {
         // Random/dead address should return None or zeroed data
         let address = Address::from_str("0x0000000000000000000000000000000000000001").unwrap();
-        let result = get_dexscreener_data(&address).await;
+        let chain_id = 1u64;
+        let result = get_dexscreener_data(&address, chain_id).await;
 
         // Either None or all zeros — both are acceptable
         if let Some(data) = result {

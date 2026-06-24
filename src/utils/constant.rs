@@ -42,3 +42,22 @@ pub const BASE: Contracts = Contracts {
     usdt: address!("0xdAC17F958D2ee523a2206206994597C13D831ec7"),
     usdc: address!("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"),
 };
+
+// public free RPC URLs
+pub const ETH_FREE_RPCS: &[&str] = &[
+    "https://eth.blockrazor.xyz",
+    "https://ethereum-rpc.publicnode.com",
+    "https://ethereum.public.blockpi.network/v1/rpc/public",
+    "https://0xrpc.io/eth",
+    "https://ethereum-json-rpc.stakely.io",
+    "https://rpc.fullsend.to",
+    "https://api.zan.top/eth-mainnet",
+    "https://eth.llamarpc.com",
+    "https://rpc.payload.de",
+    "https://endpoints.omniatech.io/v1/eth/mainnet/public",
+    "https://rpc.public.curie.radiumblock.co/ws/ethereum",
+    "https://rpc.polysplit.cloud/v1/chain/1",
+    "https://eth.merkle.io",
+];
+
+pub const BASE_FREE_RPCS: &[&str] = &[];
