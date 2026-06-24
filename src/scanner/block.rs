@@ -4,18 +4,22 @@ use std::{
 };
 
 use alloy::{
-    network::TransactionResponse, primitives::Address, providers::Provider,
-    rpc::types::TransactionReceipt,
+    network::TransactionResponse,
+    primitives::Address,
+    providers::Provider,
+    rpc::types::{BlockTransactions, TransactionReceipt},
 };
+use futures_util::future;
 use teloxide::Bot;
+use tokio::task::futures;
 
 use crate::{
     etherscan::client::EtherscanClient,
     scanner::{self, pipeline},
     utils::{
-        constant::{UNISWAP_V4_POOL_MANAGER, WETH},
+        constant::{Contracts, WETH},
         contracts::IUniswapV2Pair,
-        helpers::{self, get_block},
+        helpers::{self, get_block, get_block_receipts},
     },
 };
 
@@ -27,29 +31,52 @@ pub async fn analyze_block<P>(
     bot: &Bot,
     etherscan_client: &EtherscanClient,
     chain_id: u64,
+    chain_contracts: Arc<Contracts>,
 ) where
     P: Provider,
 {
-    let block = get_block(&provider, &fallback, block_number)
+    // let block = get_block(&provider, &fallback, block_number)
+    //     .await
+    //     .expect("Failed to get block");
+
+    // let txns = block.transactions.as_transactions().unwrap();
+
+    // let tx_hashes = match &block.transactions {
+    //     BlockTransactions::Hashes(hashes) => hashes.clone(),
+    //     _ => vec![],
+    // };
+
+    // // Fetch full transactions separately
+    // let txns: Vec<_> = futures_util::future::join_all(
+    //     tx_hashes
+    //         .iter()
+    //         .map(|hash| provider.get_transaction_by_hash(*hash)),
+    // )
+    // .await
+    // .into_iter()
+    // .flatten()
+    // .flatten()
+    // .collect();
+
+    let block_log_receipts = get_block_receipts(&provider, &fallback, block_number)
         .await
-        .expect("Failed to get block");
-
-    let txns = block.transactions.as_transactions().unwrap_or_default();
-
-    for txn in txns {
+        .expect("failed to get block receipts");
+    for receipt in block_log_receipts {
         // Get the transaction receipt to analyze logs and events
-        let txn_receipts: TransactionReceipt =
-            match provider.get_transaction_receipt(txn.tx_hash()).await {
-                Ok(Some(receipt)) => receipt,
-                Ok(None) => continue,
-                Err(_) => continue,
-            };
+        // let txn_receipts: TransactionReceipt =
+        //     match provider.get_transaction_receipt(txn.tx_hash()).await {
+        //         Ok(Some(receipt)) => receipt,
+        //         Ok(None) => continue,
+        //         Err(_) => continue,
+        //     };
 
-        if !txn_receipts.status() {
+        // println!("tx recipts: {:?}", txn_receipts);
+
+        if !receipt.status() {
             continue;
         }
 
-        for log in txn_receipts.logs() {
+        for log in receipt.inner.logs() {
             let log_address: Address = log.address();
 
             // Move to the next log if the pair has already been processed
@@ -61,8 +88,10 @@ pub async fn analyze_block<P>(
             }
 
             // ========== Uniswap V4 ==========
-            if log_address == UNISWAP_V4_POOL_MANAGER {
-                if let Some(partial) = scanner::pool::decode_pool(log, &provider).await {
+            if log_address == chain_contracts.v4_pool_manager {
+                if let Some(partial) =
+                    scanner::pool::decode_pool(log, &provider, Arc::clone(&chain_contracts)).await
+                {
                     pipeline::run_pipeline(
                         &provider,
                         log_address,

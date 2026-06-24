@@ -18,6 +18,7 @@ pub async fn decode_mint<P>(
 where
     P: Provider,
 {
+    println!("Decoding Mint");
     if let Ok(mint_event) = IUniswapV2Pair::Mint::decode_log(&log.inner.as_ref()) {
         let pair_address = log.address();
 

@@ -21,6 +21,7 @@ pub async fn decode_swap<P: Provider>(
     token1: Address,
 ) -> Option<PartialTokenInfo> {
     // Check if the hashed set contains the pair address, if it does, skip processing this log to avoid duplicate processing of the same pair in the same block
+    println!("Decoding swap");
 
     if let Ok(_) = IUniswapV2Pair::Swap::decode_log(log.inner.as_ref()) {
         let swap_topic = b256!("d78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822");

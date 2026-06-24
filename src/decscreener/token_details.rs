@@ -16,8 +16,7 @@ pub async fn get_dexscreener_data(
 
     let url = format!(
         "https://api.dexscreener.com/latest/dex/pairs/{}/{}",
-        chain_name,
-        pair_address
+        chain_name, pair_address
     );
 
     let res: serde_json::Value = reqwest::get(&url).await.ok()?.json().await.ok()?;

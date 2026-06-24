@@ -1,7 +1,7 @@
 use alloy::{
     primitives::{Address, B256, keccak256},
     providers::Provider,
-    rpc::types::Block,
+    rpc::types::{Block, TransactionReceipt},
 };
 
 use hex::decode;
@@ -93,6 +93,29 @@ where
             fallback
                 .get_block_by_number(block_number.into())
                 .hashes()
+                .await?
+                .ok_or_else(|| eyre::eyre!("Block {} not found on fallback", block_number))
+        }
+    }
+}
+
+pub async fn get_block_receipts<P>(
+    primary: &P,
+    fallback: &P,
+    block_number: u64,
+) -> eyre::Result<Vec<TransactionReceipt>>
+where
+    P: Provider,
+{
+    match primary.get_block_receipts(block_number.into()).await {
+        Ok(Some(receipts)) => Ok(receipts),
+        _ => {
+            tracing::warn!(
+                "Primary RPC failed for block {}, trying fallback",
+                block_number
+            );
+            fallback
+                .get_block_receipts(block_number.into())
                 .await?
                 .ok_or_else(|| eyre::eyre!("Block {} not found on fallback", block_number))
         }

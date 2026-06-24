@@ -1,12 +1,18 @@
+use std::sync::Arc;
+
 use alloy::{providers::Provider, rpc::types::Log, sol_types::SolEvent};
 
 use crate::{
     token::info::get_token_info,
     types::PartialTokenInfo,
-    utils::{constant::BASE_TOKENS, contracts::IUniswapPoolManager},
+    utils::{constant::Contracts, contracts::IUniswapPoolManager},
 };
 
-pub async fn decode_pool<P>(log: &Log, provider: &P) -> Option<PartialTokenInfo>
+pub async fn decode_pool<P>(
+    log: &Log,
+    provider: &P,
+    chain_contracts: Arc<Contracts>,
+) -> Option<PartialTokenInfo>
 where
     P: Provider,
 {
@@ -14,10 +20,12 @@ where
         let currency0 = pool_event.currency0;
         let currency1 = pool_event.currency1;
 
+        let base_tokens = [chain_contracts.usdt, chain_contracts.usdc];
+
         // Filter - Only WETH, USDC and USDT
-        let token_address = if BASE_TOKENS.contains(&currency0) {
+        let token_address = if base_tokens.contains(&currency0) {
             currency1
-        } else if BASE_TOKENS.contains(&currency1) {
+        } else if base_tokens.contains(&currency1) {
             currency0
         } else {
             return None;

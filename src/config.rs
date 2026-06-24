@@ -3,7 +3,7 @@ use teloxide::Bot;
 use thiserror::Error;
 use url::Url;
 
-use crate::utils::constant::{BASE_FREE_RPCS, ETH_FREE_RPCS};
+use crate::utils::constant::{BASE, BASE_FREE_RPCS, Contracts, ETH_FREE_RPCS, MAINNET};
 
 #[derive(Debug, Error)]
 pub enum ConfigError {
@@ -24,6 +24,7 @@ pub struct Config {
     pub chat_id: i64,
     pub chain_id: u64,
     pub free_rpcs: &'static [&'static str],
+    pub chain_contracts: Contracts,
 }
 
 impl Config {
@@ -79,14 +80,11 @@ impl Config {
             .parse()
             .map_err(|_| ConfigError::InvalidChainId("failed to parse chainId".to_string()))?;
 
-        let (rpc_url, rpc_url_wss, free_rpcs) = match chain_id {
-            1 => (eth_rpc_url, eth_rpc_url_wss, ETH_FREE_RPCS),
-            8453 => (base_rpc_url, base_rpc_url_wss, BASE_FREE_RPCS),
+        let (rpc_url, rpc_url_wss, free_rpcs, chain_contracts) = match chain_id {
+            1 => (eth_rpc_url, eth_rpc_url_wss, ETH_FREE_RPCS, MAINNET),
+            8453 => (base_rpc_url, base_rpc_url_wss, BASE_FREE_RPCS, BASE),
             _ => {
-                return Err(ConfigError::InvalidChainId(format!(
-                    "Invalid Chain Id: {}",
-                    chain_id
-                )));
+                return Err(ConfigError::InvalidChainId(format!("{}", chain_id)));
             }
         };
 
@@ -98,6 +96,14 @@ impl Config {
         // Create Bot Instance
         let bot = Bot::new(bot_token);
 
+        println!("rpc_url: {}", rpc_url);
+        println!("rpc_url_wss: {}", rpc_url_wss);
+        println!("etherscan_api_key: {}", etherscan_api_key);
+        println!("chat_id: {}", parse_chat_id * -1);
+        println!("chain_id: {}", chain_id);
+        println!("free_rpcs: {:?}", free_rpcs);
+        println!("chain_contracts: {:?}", chain_contracts);
+
         Ok(Self {
             rpc_url,
             rpc_url_wss,
@@ -106,6 +112,7 @@ impl Config {
             chat_id: parse_chat_id * -1,
             chain_id,
             free_rpcs,
+            chain_contracts,
         })
     }
 

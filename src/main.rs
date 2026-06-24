@@ -7,7 +7,6 @@ use crate::{
     config::Config,
     etherscan::client::EtherscanClient,
     library::server_balancer::{LoadBalancer, Server},
-    utils::constant::ETH_FREE_RPCS,
 };
 use alloy::{primitives::Address, providers::Provider};
 use axum::{Router, routing::get};
@@ -70,13 +69,14 @@ async fn main() {
 
     let fallback_provider = Arc::new(provider::connect(config.rpc_url.clone()).await);
     let etherscan_client = Arc::new(EtherscanClient::new(config.etherscan_api_key.clone()));
+    let chain_contracts = Arc::new(config.chain_contracts.clone());
     let bot = config.get_bot();
 
     // Add logic to process new blocks and scan for token transfers
     while let Some(block) = stream.next().await {
         let block_number = block.number;
 
-        if block_number % 1000 == 0 {
+        if block_number % 10000 == 0 {
             checked_pairs.write().unwrap().clear();
         }
 
@@ -84,6 +84,8 @@ async fn main() {
         let checked_pairs = Arc::clone(&checked_pairs);
         let provider_balancer = Arc::clone(&provider_balancer);
         let fallback = Arc::clone(&fallback_provider);
+        let chain_contracts = Arc::clone(&chain_contracts);
+
         let bot = bot.clone();
 
         let server = provider_balancer
@@ -103,6 +105,7 @@ async fn main() {
                 &bot,
                 &etherscan_client,
                 config.chain_id,
+                chain_contracts,
             )
             .await;
         });

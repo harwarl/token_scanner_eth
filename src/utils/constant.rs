@@ -13,9 +13,12 @@ pub const UNISWAP_V4_POOL_MANAGER: Address = address!("0x000000000004444c5dc75cB
 pub const MIN_ETH_LIQUIDITY: u128 = 500_000_000_000_000_000u128;
 pub const USDC: Address = address!("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48");
 pub const USDT: Address = address!("0xdAC17F958D2ee523a2206206994597C13D831ec7");
+pub const BASE_USDC: Address = address!("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48");
+pub const BASE_USDT: Address = address!("0xdAC17F958D2ee523a2206206994597C13D831ec7");
 
 pub const BASE_TOKENS: [Address; 3] = [WETH, USDC, USDT];
 
+#[derive(Debug, Clone)]
 pub struct Contracts {
     pub v2_router: Address,
     pub v2_factory: Address,
@@ -60,4 +63,13 @@ pub const ETH_FREE_RPCS: &[&str] = &[
     "https://eth.merkle.io",
 ];
 
-pub const BASE_FREE_RPCS: &[&str] = &[];
+pub const BASE_FREE_RPCS: &[&str] = &[
+    "https://rpc.baseazul.dev",
+    "https://base-public.nodies.app",
+    "https://1rpc.io/base",
+    "https://base-rpc.publicnode.com",
+    "https://base.meowrpc.com",
+    "https://base.api.pocket.network",
+    "https://base.drpc.org",
+    "https://rpc.nodeflare.app/base/public",
+];
