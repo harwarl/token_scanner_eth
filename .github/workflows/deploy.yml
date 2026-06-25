@@ -89,12 +89,16 @@ jobs:
                   region: "${{ env.REGION }}"
                   image: "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.SERVICE }}:${{ github.sha }}"
                   env_vars: |
-                      RPC_URL=${{ secrets.RPC_URL }}
-                      RPC_URL_WSS=${{ secrets.RPC_URL_WSS }}
+                      ETH_RPC_URL=${{ secrets.ETH_RPC_URL }}
+                      ETH_RPC_URL_WSS=${{ secrets.ETH_RPC_URL_WSS }}
+                      BASE_RPC_URL=${{ secrets.BASE_RPC_URL }}
+                      BASE_RPC_URL_WSS=${{ secrets.BASE_RPC_URL_WSS }}
+                      CHAIN_ID=${{secrets.CHAIN_ID}}
                       ETHERSCAN_API_KEY=${{ secrets.ETHERSCAN_API_KEY }}
                       TELOXIDE_TOKEN=${{ secrets.TELOXIDE_TOKEN }}
                       CHAT_ID=${{secrets.CHAT_ID}}
                       RUST_LOG=${{secrets.RUST_LOG}}
+                      
 
             # If required, use the Cloud Run URL output in later steps
             - name: Show Output
