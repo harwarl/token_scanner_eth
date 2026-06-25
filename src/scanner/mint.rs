@@ -14,6 +14,7 @@ pub async fn decode_mint<P>(
     log: &Log,
     token0: Address,
     token1: Address,
+    weth: Address
 ) -> Option<PartialTokenInfo>
 where
     P: Provider,
@@ -22,7 +23,7 @@ where
         let pair_address = log.address();
 
         // Check liquidity directly from the Mint event — no getReserves needed
-        let eth_amount = if token0 == WETH {
+        let eth_amount = if token0 == weth {
             mint_event.amount0.to::<u128>()
         } else {
             mint_event.amount1.to::<u128>()
@@ -33,7 +34,7 @@ where
             return None;
         }
 
-        let token_address = if token0 == WETH { token1 } else { token0 };
+        let token_address = if token0 == weth { token1 } else { token0 };
         let token_meta = get_token_info(provider, token_address).await;
 
         return Some(PartialTokenInfo {

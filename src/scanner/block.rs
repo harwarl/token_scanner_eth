@@ -104,7 +104,7 @@ pub async fn analyze_block<P>(
             // }
 
             // DECODE MINT
-            if let Some(partial) = scanner::mint::decode_mint(&provider, log, token0, token1).await
+            if let Some(partial) = scanner::mint::decode_mint(&provider, log, token0, token1, chain_contracts.weth).await
             {
                 pipeline::run_pipeline(
                     &provider,
