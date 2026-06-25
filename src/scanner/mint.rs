@@ -4,7 +4,7 @@ use crate::{
     token::info::get_token_info,
     types::PartialTokenInfo,
     utils::{
-        constant::{MIN_ETH_LIQUIDITY, WETH},
+        constant::{MIN_ETH_LIQUIDITY},
         contracts::IUniswapV2Pair,
     },
 };
