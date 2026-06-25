@@ -2,9 +2,13 @@ use alloy::primitives::Address;
 
 use crate::types::HoneyPotResponse;
 
-pub async fn get_honey_pot(token: &Address, pair_address: &Address) -> Option<HoneyPotResponse> {
+pub async fn get_honey_pot(
+    token: &Address,
+    pair_address: &Address,
+    chain_id: u64,
+) -> Option<HoneyPotResponse> {
     let honeypot_url = format!(
-        "https://api.honeypot.is/v2/IsHoneypot?address={token}&pair={pair_address}&chainID=1"
+        "https://api.honeypot.is/v2/IsHoneypot?address={token}&pair={pair_address}&chainID={chain_id}"
     );
 
     let res = match reqwest::get(&honeypot_url).await {

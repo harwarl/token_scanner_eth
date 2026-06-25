@@ -13,7 +13,7 @@ use crate::{
     utils::helpers::{format_number, volatility_label},
 };
 
-pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo) {
+pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo, chain_id: u64) {
     let now = Utc::now();
     let hour = now.hour();
     let greeting = match hour {
@@ -23,10 +23,20 @@ pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo) {
     };
 
     let time_str = format!("{:02}:{:02} UTC", now.hour(), now.minute());
+
+    let (chain_name, dextools_chain, dexscreener_chain, dexspy_chain, dexview_chain) =
+        match chain_id {
+            1 => ("ETH", "ether", "ethereum", "eth", "eth"),
+            8453 => ("BASE", "base", "base", "base", "base"),
+            42161 => ("ARB", "arbitrum", "arbitrum", "arb", "arbitrum"),
+            10 => ("OP", "optimism", "optimism", "op", "optimism"),
+            _ => ("ETH", "ether", "ethereum", "eth", "eth"),
+        };
+
     let message = format!(
         "
-        {greeting} <b>{name}</b> • <code>{address}</code> • <b>{time}</b>\n\
-    \n\
+        {greeting} <b>{name}</b> • <code>{address}</code> • <b>{time}</b> • [{chain_name}]\n\
+\n\
     🏆 MCap: <b>${mcap}</b> • 💧 Liq: <b>${liq}</b> • 📊 M/L: <b>{ml:.2}x</b>\n\
     💵 Price: <b>${price:.8}</b> • 5m: <b>{pc5m:+.1}%</b> • 1h: <b>{pc1h:+.1}%</b>\n\
     📉 Volatility: <b>{vol_label}</b> ({volatility:.1}%)\n\
@@ -51,10 +61,10 @@ pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo) {
     \n\
     🔗 {socials}\n\
     \n\
-    <a href=\"https://www.dextools.io/app/en/ether/pair-explorer/{address}\">Dextools</a> • \
-    <a href=\"https://dexscreener.com/ethereum/{address}\">DexScreener</a> • \
-    <a href=\"https://dexspy.io/eth/token/{address}\">DexSpy</a> • \
-    <a href=\"https://www.dexview.com/eth/{address}\">DexView</a> • \
+    <a href=\"https://www.dextools.io/app/en/{dextools_chain}/pair-explorer/{address}\">Dextools</a> • \
+    <a href=\"https://dexscreener.com/{dexscreener_chain}/{address}\">DexScreener</a> • \
+    <a href=\"https://dexspy.io/{dexspy_chain}/token/{address}\">DexSpy</a> • \
+    <a href=\"https://www.dexview.com/{dexview_chain}/{address}\">DexView</a> • \
     <a href=\"https://x.com/search?q=%24{name}+OR+{address}&src=typed_query&f=live\">𝕏</a>",
         greeting = greeting,
         time = time_str,
@@ -108,6 +118,11 @@ pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo) {
         } else {
             token_info.socials
         },
+        dextools_chain = dextools_chain,
+        dexscreener_chain = dexscreener_chain,
+        dexspy_chain = dexspy_chain,
+        dexview_chain = dexview_chain,
+        chain_name = chain_name
     );
 
     let keyboard = InlineKeyboardMarkup::new(vec![
@@ -133,6 +148,8 @@ pub async fn send_tg_message(bot: &Bot, token_info: TokenInfo) {
 
     let raw_chat_id = Config::from_env().unwrap().chat_id;
     let chat = ChatId(raw_chat_id);
+
+    println!("Sending to TG");
 
     if let Err(e) = bot
         .send_message(chat, message)

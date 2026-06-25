@@ -1,17 +1,15 @@
 use alloy::{
     primitives::{Address, B256, keccak256},
     providers::Provider,
-    rpc::types::{Block, TransactionReceipt},
+    rpc::types::Block,
 };
+use op_alloy_rpc_types::OpTransactionReceipt;
 
 use hex::decode;
 
-use crate::utils::{
-    constant::{MIN_ETH_LIQUIDITY, UNISWAP_FACTORY, WETH},
-    contracts::IUniswapV2Pair,
-};
+use crate::utils::{constant::MIN_ETH_LIQUIDITY, contracts::IUniswapV2Pair};
 
-pub fn get_univ2_pair_address(token_a: &Address, token_b: &Address) -> Address {
+pub fn get_univ2_pair_address(token_a: &Address, token_b: &Address, factory: &Address) -> Address {
     let (token0, token1) = if token_a < token_b {
         (token_a, token_b)
     } else {
@@ -30,7 +28,7 @@ pub fn get_univ2_pair_address(token_a: &Address, token_b: &Address) -> Address {
     // ABI Encode Packed the CREATE2 parameters
     let mut encoded = Vec::new();
     encoded.push(0xff); // 0xff prefix
-    encoded.extend_from_slice(UNISWAP_FACTORY.as_slice());
+    encoded.extend_from_slice(factory.as_slice());
     encoded.extend_from_slice(salt.as_slice());
     encoded.extend_from_slice(init_code_hash.as_slice());
 
@@ -99,30 +97,77 @@ where
     }
 }
 
+// pub async fn get_block_receipts<P>(
+//     primary: &P,
+//     fallback: &P,
+//     block_number: u64,
+// ) -> eyre::Result<Vec<TransactionReceipt>>
+// where
+//     P: Provider,
+// {
+//     match fallback.get_block_receipts(block_number.into()).await {
+//         Ok(Some(receipts)) => Ok(receipts),
+//         _ => {
+//             tracing::warn!(
+//                 "Primary RPC failed for block {}, trying fallback",
+//                 block_number
+//             );
+//             fallback
+//                 .get_block_receipts(block_number.into())
+//                 .await?
+//                 .ok_or_else(|| eyre::eyre!("Block {} not found on fallback", block_number))
+//         }
+//     }
+// }
+
 pub async fn get_block_receipts<P>(
     primary: &P,
     fallback: &P,
     block_number: u64,
-) -> eyre::Result<Vec<TransactionReceipt>>
+) -> eyre::Result<Vec<OpTransactionReceipt>>
 where
     P: Provider,
 {
-    match primary.get_block_receipts(block_number.into()).await {
-        Ok(Some(receipts)) => Ok(receipts),
-        _ => {
-            tracing::warn!(
-                "Primary RPC failed for block {}, trying fallback",
-                block_number
-            );
-            fallback
-                .get_block_receipts(block_number.into())
-                .await?
-                .ok_or_else(|| eyre::eyre!("Block {} not found on fallback", block_number))
+    // async fn fetch<P: Provider>(
+    //     provider: &P,
+    //     block_number: u64,
+    // ) -> eyre::Result<Vec<OpTransactionReceipt>> {
+    //     let raw: serde_json::Value = provider
+    //         .raw_request("eth_getBlockReceipts".into(), (block_number,))
+    //         .await?;
+    //     let receipts: Vec<OpTransactionReceipt> = serde_json::from_value(raw)?;
+    //     Ok(receipts)
+    // }
+
+    async fn fetch<P: Provider>(
+        provider: &P,
+        block_number: u64,
+    ) -> eyre::Result<Vec<OpTransactionReceipt>> {
+        let raw: serde_json::Value = provider
+            .raw_request(
+                "eth_getBlockReceipts".into(),
+                (format!("0x{:x}", block_number),), // hex string
+            )
+            .await?;
+        let receipts: Vec<OpTransactionReceipt> = serde_json::from_value(raw)?;
+        Ok(receipts)
+    }
+
+    match fetch(primary, block_number).await {
+        Ok(receipts) => Ok(receipts),
+        Err(e) => {
+            tracing::warn!("Primary RPC failed for block {block_number}: {e}, trying fallback");
+            fetch(fallback, block_number).await
         }
     }
 }
 
-pub async fn has_enough_liquidity<P>(provider: &P, pair_address: Address, token0: Address) -> bool
+pub async fn has_enough_liquidity<P>(
+    provider: &P,
+    pair_address: Address,
+    token0: Address,
+    weth: Address,
+) -> bool
 where
     P: Provider,
 {
@@ -136,7 +181,7 @@ where
         }
     };
 
-    let eth_reserve = if token0 == WETH {
+    let eth_reserve = if token0 == weth {
         reserve0.to::<u128>()
     } else {
         reserve1.to::<u128>()
@@ -172,7 +217,11 @@ mod tests {
             .parse()
             .unwrap();
 
-        let calculated = get_univ2_pair_address(&weth, &usdc);
+        let mainnet_factory: Address = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
+            .parse()
+            .unwrap();
+
+        let calculated = get_univ2_pair_address(&weth, &usdc, &mainnet_factory);
 
         assert_eq!(calculated, expected);
     }

@@ -3,23 +3,16 @@ use std::{
     sync::{Arc, RwLock},
 };
 
-use alloy::{
-    network::TransactionResponse,
-    primitives::Address,
-    providers::Provider,
-    rpc::types::{BlockTransactions, TransactionReceipt},
-};
-use futures_util::future;
+use alloy::{primitives::Address, providers::Provider};
 use teloxide::Bot;
-use tokio::task::futures;
 
 use crate::{
     etherscan::client::EtherscanClient,
     scanner::{self, pipeline},
     utils::{
-        constant::{Contracts, WETH},
+        constant::Contracts,
         contracts::IUniswapV2Pair,
-        helpers::{self, get_block, get_block_receipts},
+        helpers::get_block_receipts,
     },
 };
 
@@ -38,11 +31,11 @@ pub async fn analyze_block<P>(
     let block_log_receipts = get_block_receipts(&provider, &fallback, block_number)
         .await
         .expect("failed to get block receipts");
-    for receipt in block_log_receipts {
-        if !receipt.status() {
-            continue;
-        }
 
+    for receipt in block_log_receipts {
+        // if !receipt.status() {
+        //     continue;
+        // }
         for log in receipt.inner.logs() {
             let log_address: Address = log.address();
 
@@ -99,15 +92,16 @@ pub async fn analyze_block<P>(
             };
 
             // Filter out non WETH pairs early
-            if token0 != WETH && token1 != WETH {
+            if token0 != chain_contracts.weth && token1 != chain_contracts.weth {
                 continue;
             }
 
-            // Validate it's actually a uniswap v2 pair
-            let computed_pair_address = helpers::get_univ2_pair_address(&token0, &token1);
-            if computed_pair_address != log_address {
-                continue;
-            }
+            // // Validate it's actually a uniswap v2 pair
+            // let computed_pair_address =
+            //     helpers::get_univ2_pair_address(&token0, &token1, &chain_contracts.v2_factory);
+            // if computed_pair_address != log_address {
+            //     continue;
+            // }
 
             // DECODE MINT
             if let Some(partial) = scanner::mint::decode_mint(&provider, log, token0, token1).await
@@ -133,6 +127,7 @@ pub async fn analyze_block<P>(
                 &provider,
                 token0,
                 token1,
+                chain_contracts.weth,
             )
             .await
             {

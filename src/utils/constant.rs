@@ -38,12 +38,12 @@ pub const MAINNET: Contracts = Contracts {
 };
 
 pub const BASE: Contracts = Contracts {
-    v2_factory: address!("0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"),
-    v2_router: address!("0x7a250d5630b4cf539739df2c5dacb4c659f2488d"),
+    v2_factory: address!("0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6"),
+    v2_router: address!("0x4752ba5dbc23f44d87826276bf6fd6b1c372ad24"),
     v4_pool_manager: address!("0x000000000004444c5dc75cB358380D2e3dE08A90"),
-    weth: address!("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"),
-    usdt: address!("0xdAC17F958D2ee523a2206206994597C13D831ec7"),
-    usdc: address!("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"),
+    weth: address!("0x4200000000000000000000000000000000000006"),
+    usdt: address!("0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2"),
+    usdc: address!("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"),
 };
 
 // public free RPC URLs

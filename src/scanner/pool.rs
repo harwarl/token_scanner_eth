@@ -16,6 +16,7 @@ pub async fn decode_pool<P>(
 where
     P: Provider,
 {
+    println!("Decoding pool");
     if let Ok(pool_event) = IUniswapPoolManager::Initialize::decode_log(log.inner.as_ref()) {
         let currency0 = pool_event.currency0;
         let currency1 = pool_event.currency1;

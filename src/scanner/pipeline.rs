@@ -41,9 +41,16 @@ pub async fn run_pipeline<P>(
         Some(data) => data,
         None => return,
     };
-    let honeypoy_res = get_honey_pot(&token_info.token_address, &token_info.pair_address)
-        .await
-        .unwrap();
+
+    // Get honey pot
+    let honeypoy_res = get_honey_pot(
+        &token_info.token_address,
+        &token_info.pair_address,
+        chain_id,
+    )
+    .await
+    .unwrap();
+
     let deployer = get_deployer(provider, &honeypoy_res.pair.creation_tx_hash).await;
     let is_lp_locked = is_lp_locked(&token_info.pair_address, &provider).await;
 
@@ -56,14 +63,13 @@ pub async fn run_pipeline<P>(
 
     // Etherscan calls
     let contract_info = etherscan_client
-        .get_contract_info(&token_info.token_address)
+        .get_contract_info(chain_id, &token_info.token_address)
         .await;
-    let wallet_info = etherscan_client.get_wallet_info(&deployer).await;
-    let bad_reputation = etherscan_client.check_deployer_reputation(&deployer).await;
+    let wallet_info = etherscan_client.get_wallet_info(chain_id, &deployer).await;
+    let bad_reputation = etherscan_client.check_deployer_reputation(chain_id, &deployer).await;
     // let holder_count = etherscan_client.get_holder_count(&token_info.address).await;
 
     // Get Prices
-
     let mcap_to_liq_ratio = if liquidity_usd > 0.0 {
         marketcap_usd / liquidity_usd
     } else {
@@ -151,5 +157,5 @@ pub async fn run_pipeline<P>(
     };
 
     // Send the Message to TELEGRAM
-    telegram::bot::send_tg_message(bot, token_info).await;
+    telegram::bot::send_tg_message(bot, token_info, chain_id).await;
 }

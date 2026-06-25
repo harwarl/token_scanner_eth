@@ -95,15 +95,7 @@ impl Config {
 
         // Create Bot Instance
         let bot = Bot::new(bot_token);
-
-        println!("rpc_url: {}", rpc_url);
-        println!("rpc_url_wss: {}", rpc_url_wss);
-        println!("etherscan_api_key: {}", etherscan_api_key);
-        println!("chat_id: {}", parse_chat_id * -1);
-        println!("chain_id: {}", chain_id);
-        println!("free_rpcs: {:?}", free_rpcs);
-        println!("chain_contracts: {:?}", chain_contracts);
-
+        
         Ok(Self {
             rpc_url,
             rpc_url_wss,

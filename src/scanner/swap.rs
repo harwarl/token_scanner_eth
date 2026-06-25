@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use crate::{
     token::info::get_token_info,
     types::PartialTokenInfo,
-    utils::{constant::WETH, contracts::IUniswapV2Pair},
+    utils::{contracts::IUniswapV2Pair},
 };
 use alloy::{
     primitives::{Address, U256, b256},
@@ -19,10 +19,9 @@ pub async fn decode_swap<P: Provider>(
     provider: &P,
     token0: Address,
     token1: Address,
+    weth: Address,
 ) -> Option<PartialTokenInfo> {
     // Check if the hashed set contains the pair address, if it does, skip processing this log to avoid duplicate processing of the same pair in the same block
-    println!("Decoding swap");
-
     if let Ok(_) = IUniswapV2Pair::Swap::decode_log(log.inner.as_ref()) {
         let swap_topic = b256!("d78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822");
 
@@ -59,9 +58,9 @@ pub async fn decode_swap<P: Provider>(
                 // volume_usd += weth_in * eth_price;
 
                 let swap_direction = if past_swap_event.amount1Out == U256::ZERO {
-                    if token0 == WETH { 1 } else { 0 }
+                    if token0 == weth { 1 } else { 0 }
                 } else {
-                    if token0 == WETH { 0 } else { 1 }
+                    if token0 == weth { 0 } else { 1 }
                 };
 
                 if swap_direction == 0 {
@@ -70,11 +69,11 @@ pub async fn decode_swap<P: Provider>(
             }
         }
 
-        if buy_counts < 20 {
+        if buy_counts < 10 {
             return None;
         }
 
-        let token = if token0 == WETH { token1 } else { token0 };
+        let token = if token0 == weth { token1 } else { token0 };
         let token_info = get_token_info(provider, token).await;
 
         return Some(PartialTokenInfo {
