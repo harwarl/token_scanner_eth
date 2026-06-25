@@ -1,3 +1,5 @@
+use std::time::UNIX_EPOCH;
+
 use alloy::primitives::Address;
 
 use crate::types::DexscreenerVolume;
@@ -48,6 +50,19 @@ pub async fn get_dexscreener_data(
         None
     };
 
+    // Token Pair Age
+    let pair_created_at = pair["pairCreatedAt"].as_u64().unwrap_or(0);
+    let age_hours = if pair_created_at > 0 {
+        let now = std::time::SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_millis() as u64;
+
+        (now - pair_created_at) / (1000 * 60 * 60)
+    } else {
+        0
+    };
+
     Some(DexscreenerVolume {
         price_usd: pair["priceUsd"]
             .as_str()
@@ -73,6 +88,7 @@ pub async fn get_dexscreener_data(
         price_change_6h: pair["priceChange"]["h6"].as_f64().unwrap_or(0.0),
         price_change_24h: pair["priceChange"]["h24"].as_f64().unwrap_or(0.0),
         holder_count: pair["info"]["holders"].as_u64().unwrap_or(0),
+        age_hours,
         website,
         x,
         telegram,

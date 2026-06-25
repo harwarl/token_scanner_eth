@@ -60,19 +60,26 @@ pub async fn run_pipeline<P>(
     match dex_data.liquidity_weth {
         Some(liq_weth) => {
             if liq_weth < 2f64 || liq_weth > 20f64 {
-                return
+                return;
             }
-        },
+        }
         None => {
             if liquidity_usd < 3000f64 {
-                return
+                return;
             }
         }
     }
-    
+
     // Filter Based on MC
     if marketcap_usd < 10_000f64 || marketcap_usd > 500_000f64 {
         return;
+    }
+
+    // filter based on volume... TODO
+
+    // Filter based on age
+    if dex_data.age_hours > 5 {
+        return
     }
 
     // Etherscan calls
