@@ -30,7 +30,6 @@ impl Chain {
     }
 }
 
-
 #[derive(Debug, Clone)]
 pub struct EtherscanClient {
     pub client: Client,
@@ -47,10 +46,14 @@ impl EtherscanClient {
         }
     }
 
-    pub async fn get<T: DeserializeOwned>(&self, chain: Chain, params: &[(&str, &str)]) -> Option<T> {
+    pub async fn get<T: DeserializeOwned>(
+        &self,
+        chain: Chain,
+        params: &[(&str, &str)],
+    ) -> Option<T> {
         let mut query = params.to_vec();
         let chain_id = chain.chain_id().to_string();
-        
+
         query.push(("chainid", &chain_id));
         query.push(("apiKey", &self.api_key.as_str()));
 

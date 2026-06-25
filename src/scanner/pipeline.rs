@@ -56,8 +56,22 @@ pub async fn run_pipeline<P>(
 
     let liquidity_usd = dex_data.liquidity_usd;
     let marketcap_usd = dex_data.market_cap;
+    // Filter based on Liquidity
+    match dex_data.liquidity_weth {
+        Some(liq_weth) => {
+            if liq_weth < 2f64 || liq_weth > 20f64 {
+                return
+            }
+        },
+        None => {
+            if liquidity_usd < 3000f64 {
+                return
+            }
+        }
+    }
+    
     // Filter Based on MC
-    if marketcap_usd < 10_000f64 || marketcap_usd > 1_000_000f64 {
+    if marketcap_usd < 10_000f64 || marketcap_usd > 500_000f64 {
         return;
     }
 
@@ -66,7 +80,9 @@ pub async fn run_pipeline<P>(
         .get_contract_info(chain_id, &token_info.token_address)
         .await;
     let wallet_info = etherscan_client.get_wallet_info(chain_id, &deployer).await;
-    let bad_reputation = etherscan_client.check_deployer_reputation(chain_id, &deployer).await;
+    let bad_reputation = etherscan_client
+        .check_deployer_reputation(chain_id, &deployer)
+        .await;
     // let holder_count = etherscan_client.get_holder_count(&token_info.address).await;
 
     // Get Prices

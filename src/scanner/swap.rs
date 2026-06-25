@@ -1,9 +1,7 @@
 use std::collections::HashSet;
 
 use crate::{
-    token::info::get_token_info,
-    types::PartialTokenInfo,
-    utils::{contracts::IUniswapV2Pair},
+    token::info::get_token_info, types::PartialTokenInfo, utils::contracts::IUniswapV2Pair,
 };
 use alloy::{
     primitives::{Address, U256, b256},
@@ -69,7 +67,7 @@ pub async fn decode_swap<P: Provider>(
             }
         }
 
-        if buy_counts < 10 {
+        if buy_counts < 20 {
             return None;
         }
 

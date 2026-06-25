@@ -170,6 +170,7 @@ pub struct DexscreenerVolume {
     pub price_usd: f64,
     pub market_cap: f64,
     pub liquidity_usd: f64,
+    pub liquidity_weth: Option<f64>,
     pub vol_5m: f64,
     pub vol_1h: f64,
     pub vol_6h: f64,

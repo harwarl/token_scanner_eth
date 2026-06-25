@@ -3,10 +3,7 @@ use alloy::{primitives::Address, providers::Provider, rpc::types::Log, sol_types
 use crate::{
     token::info::get_token_info,
     types::PartialTokenInfo,
-    utils::{
-        constant::{MIN_ETH_LIQUIDITY},
-        contracts::IUniswapV2Pair,
-    },
+    utils::{constant::MIN_ETH_LIQUIDITY, contracts::IUniswapV2Pair},
 };
 
 pub async fn decode_mint<P>(
@@ -14,25 +11,25 @@ pub async fn decode_mint<P>(
     log: &Log,
     token0: Address,
     token1: Address,
-    weth: Address
+    weth: Address,
 ) -> Option<PartialTokenInfo>
 where
     P: Provider,
 {
-    if let Ok(mint_event) = IUniswapV2Pair::Mint::decode_log(&log.inner.as_ref()) {
+    if let Ok(_) = IUniswapV2Pair::Mint::decode_log(&log.inner.as_ref()) {
         let pair_address = log.address();
 
         // Check liquidity directly from the Mint event — no getReserves needed
-        let eth_amount = if token0 == weth {
-            mint_event.amount0.to::<u128>()
-        } else {
-            mint_event.amount1.to::<u128>()
-        };
+        // let eth_amount = if token0 == weth {
+        //     mint_event.amount0.to::<u128>()
+        // } else {
+        //     mint_event.amount1.to::<u128>()
+        // };
 
-        if eth_amount < MIN_ETH_LIQUIDITY {
-            tracing::info!("Skipping low liquidity mint: {} wei", eth_amount);
-            return None;
-        }
+        // if eth_amount < MIN_ETH_LIQUIDITY {
+        //     tracing::info!("Skipping low liquidity mint: {} wei", eth_amount);
+        //     return None;
+        // }
 
         let token_address = if token0 == weth { token1 } else { token0 };
         let token_meta = get_token_info(provider, token_address).await;

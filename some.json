@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "1.0.0",
+  "pairs": [
+    {
+      "chainId": "base",
+      "dexId": "aerodrome",
+      "url": "https://dexscreener.com/base/0x9e4cb8b916289864321661ce02cf66aa5ba63c94",
+      "pairAddress": "0x9e4CB8b916289864321661CE02cf66aa5BA63C94",
+      "baseToken": {
+        "address": "0xDE5ed76E7c05eC5e4572CfC88d1ACEA165109E44",
+        "name": "DEUS",
+        "symbol": "DEUS"
+      },
+      "quoteToken": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "name": "Wrapped Ether",
+        "symbol": "WETH"
+      },
+      "priceNative": "0.001459",
+      "priceUsd": "2.30",
+      "txns": {
+        "m5": { "buys": 0, "sells": 0 },
+        "h1": { "buys": 4, "sells": 0 },
+        "h6": { "buys": 5, "sells": 10 },
+        "h24": { "buys": 18, "sells": 13 }
+      },
+      "volume": { "h24": 182.44, "h6": 79.13, "h1": 40.7, "m5": 0 },
+      "priceChange": { "h1": 0.18, "h6": -4.42, "h24": -0.64 },
+      "liquidity": { "usd": 209868.11, "base": 45563, "quote": 66.509 },
+      "fdv": 504344,
+      "marketCap": 390560,
+      "pairCreatedAt": 1693199213000
+    }
+  ],
+  "pair": {
+    "chainId": "base",
+    "dexId": "aerodrome",
+    "url": "https://dexscreener.com/base/0x9e4cb8b916289864321661ce02cf66aa5ba63c94",
+    "pairAddress": "0x9e4CB8b916289864321661CE02cf66aa5BA63C94",
+    "baseToken": {
+      "address": "0xDE5ed76E7c05eC5e4572CfC88d1ACEA165109E44",
+      "name": "DEUS",
+      "symbol": "DEUS"
+    },
+    "quoteToken": {
+      "address": "0x4200000000000000000000000000000000000006",
+      "name": "Wrapped Ether",
+      "symbol": "WETH"
+    },
+    "priceNative": "0.001459",
+    "priceUsd": "2.30",
+    "txns": {
+      "m5": { "buys": 0, "sells": 0 },
+      "h1": { "buys": 4, "sells": 0 },
+      "h6": { "buys": 5, "sells": 10 },
+      "h24": { "buys": 18, "sells": 13 }
+    },
+    "volume": { "h24": 182.44, "h6": 79.13, "h1": 40.7, "m5": 0 },
+    "priceChange": { "h1": 0.18, "h6": -4.42, "h24": -0.64 },
+    "liquidity": { "usd": 209868.11, "base": 45563, "quote": 66.509 },
+    "fdv": 504344,
+    "marketCap": 390560,
+    "pairCreatedAt": 1693199213000
+  }
+}

@@ -9,11 +9,7 @@ use teloxide::Bot;
 use crate::{
     etherscan::client::EtherscanClient,
     scanner::{self, pipeline},
-    utils::{
-        constant::Contracts,
-        contracts::IUniswapV2Pair,
-        helpers::get_block_receipts,
-    },
+    utils::{constant::Contracts, contracts::IUniswapV2Pair, helpers::get_block_receipts},
 };
 
 pub async fn analyze_block<P>(
@@ -104,7 +100,9 @@ pub async fn analyze_block<P>(
             // }
 
             // DECODE MINT
-            if let Some(partial) = scanner::mint::decode_mint(&provider, log, token0, token1, chain_contracts.weth).await
+            if let Some(partial) =
+                scanner::mint::decode_mint(&provider, log, token0, token1, chain_contracts.weth)
+                    .await
             {
                 pipeline::run_pipeline(
                     &provider,

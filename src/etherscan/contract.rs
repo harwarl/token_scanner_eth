@@ -1,12 +1,17 @@
 use alloy::primitives::Address;
 
 use crate::{
-    etherscan::client::{Chain, EtherscanClient}, types::{ContractCreation, ContractInfo, EtherscanResponse, SourceCode},
+    etherscan::client::{Chain, EtherscanClient},
+    types::{ContractCreation, ContractInfo, EtherscanResponse, SourceCode},
 };
 
 impl EtherscanClient {
     /// Gets contract creation details including deployer and tx hash
-    pub async fn get_contract_creation(&self, chain_id: u64, token: &Address) -> Option<ContractCreation> {
+    pub async fn get_contract_creation(
+        &self,
+        chain_id: u64,
+        token: &Address,
+    ) -> Option<ContractCreation> {
         let token_str = token.to_string();
         let params = [
             ("module", "contract"),

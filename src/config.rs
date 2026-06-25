@@ -95,7 +95,7 @@ impl Config {
 
         // Create Bot Instance
         let bot = Bot::new(bot_token);
-        
+
         Ok(Self {
             rpc_url,
             rpc_url_wss,

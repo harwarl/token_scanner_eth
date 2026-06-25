@@ -1,7 +1,8 @@
 use alloy::primitives::Address;
 
 use crate::{
-    etherscan::client::{Chain, EtherscanClient}, types::{EtherscanResponse, Transaction, WalletInfo},
+    etherscan::client::{Chain, EtherscanClient},
+    types::{EtherscanResponse, Transaction, WalletInfo},
 };
 
 impl EtherscanClient {
@@ -75,7 +76,10 @@ impl EtherscanClient {
 
     /// Gets full wallet info — age, deployed contracts, fresh wallet flag
     pub async fn get_wallet_info(&self, chain_id: u64, deployer: &Address) -> WalletInfo {
-        let age_days = self.get_wallet_age_days(chain_id, deployer).await.unwrap_or(0);
+        let age_days = self
+            .get_wallet_age_days(chain_id, deployer)
+            .await
+            .unwrap_or(0);
         let deployed_contracts = self.get_deployed_contracts(chain_id, deployer).await;
 
         WalletInfo {
