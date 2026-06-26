@@ -78,6 +78,7 @@ pub async fn run_pipeline<P>(
     // filter based on volume... TODO
 
     // Filter based on age
+    
     if dex_data.age_hours > 5 {
         return
     }

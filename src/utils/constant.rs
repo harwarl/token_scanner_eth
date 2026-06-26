@@ -40,7 +40,7 @@ pub const MAINNET: Contracts = Contracts {
 pub const BASE: Contracts = Contracts {
     v2_factory: address!("0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6"),
     v2_router: address!("0x4752ba5dbc23f44d87826276bf6fd6b1c372ad24"),
-    v4_pool_manager: address!("0x000000000004444c5dc75cB358380D2e3dE08A90"),
+    v4_pool_manager: address!("0x498581ff718922c3f8e6a244956af099b2652b2b"),
     weth: address!("0x4200000000000000000000000000000000000006"),
     usdt: address!("0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2"),
     usdc: address!("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"),

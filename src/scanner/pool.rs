@@ -16,12 +16,13 @@ pub async fn decode_pool<P>(
 where
     P: Provider,
 {
-    println!("Decoding pool");
     if let Ok(pool_event) = IUniswapPoolManager::Initialize::decode_log(log.inner.as_ref()) {
         let currency0 = pool_event.currency0;
         let currency1 = pool_event.currency1;
 
-        let base_tokens = [chain_contracts.usdt, chain_contracts.usdc];
+        println!("Currencys: 0 - {}, 1- {}", currency0, currency1);
+
+        let base_tokens = [chain_contracts.usdt, chain_contracts.usdc, chain_contracts.weth];
 
         // Filter - Only WETH, USDC and USDT
         let token_address = if base_tokens.contains(&currency0) {
@@ -33,6 +34,8 @@ where
         };
 
         let token_info = get_token_info(provider, token_address).await;
+
+        println!("Token Info: {:?}", token_info);
 
         return Some(PartialTokenInfo {
             token_address,
