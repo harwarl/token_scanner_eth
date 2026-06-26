@@ -20,8 +20,6 @@ where
         let currency0 = pool_event.currency0;
         let currency1 = pool_event.currency1;
 
-        println!("Currencys: 0 - {}, 1- {}", currency0, currency1);
-
         let base_tokens = [chain_contracts.usdt, chain_contracts.usdc, chain_contracts.weth];
 
         // Filter - Only WETH, USDC and USDT
