@@ -26,6 +26,9 @@ pub struct Contracts {
     pub weth: Address,
     pub usdt: Address,
     pub usdc: Address,
+    pub pinklock: Address,
+    pub unicrypt: Address,
+    pub team_finance: Address
 }
 
 pub const MAINNET: Contracts = Contracts {
@@ -35,6 +38,9 @@ pub const MAINNET: Contracts = Contracts {
     weth: address!("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"),
     usdt: address!("0xdAC17F958D2ee523a2206206994597C13D831ec7"),
     usdc: address!("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"),
+    pinklock: address!("0x71B5759d73262FBb223956913ecF4ecC51057641"),
+    unicrypt: address!("0x663A5C229c09b049E36dCc11a9B0d4a8Eb9db214"),
+    team_finance: address!("0xe2fe530c047f2d85298b07d9333c05737f1435fb"),
 };
 
 pub const BASE: Contracts = Contracts {
@@ -44,6 +50,9 @@ pub const BASE: Contracts = Contracts {
     weth: address!("0x4200000000000000000000000000000000000006"),
     usdt: address!("0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2"),
     usdc: address!("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"),
+    pinklock: address!("0xdd6e31a046b828cbbafb939c2a394629aff8bbdc"),
+    unicrypt: address!("0x0000000000000000000000000000000000000000"),
+    team_finance: address!("0x0000000000000000000000000000000000000000"),
 };
 
 // public free RPC URLs
@@ -65,11 +74,10 @@ pub const ETH_FREE_RPCS: &[&str] = &[
 
 pub const BASE_FREE_RPCS: &[&str] = &[
     "https://rpc.baseazul.dev",
-    "https://base-public.nodies.app",
-    "https://1rpc.io/base",
-    "https://base-rpc.publicnode.com",
-    "https://base.meowrpc.com",
-    "https://base.api.pocket.network",
-    "https://base.drpc.org",
     "https://rpc.nodeflare.app/base/public",
+    "https://api.zan.top/base-mainnet",
+    "https://base.api.pocket.network",
+    "https://base-rpc.publicnode.com",
+    "https://developer-access-mainnet.base.org",
+    "https://base.drpc.org",
 ];

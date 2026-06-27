@@ -56,6 +56,7 @@ pub async fn analyze_block<P>(
                         bot,
                         etherscan_client,
                         chain_id,
+                        Arc::clone(&chain_contracts)
                     )
                     .await;
                     continue;
@@ -112,6 +113,7 @@ pub async fn analyze_block<P>(
                     bot,
                     etherscan_client,
                     chain_id,
+                    Arc::clone(&chain_contracts)
                 )
                 .await;
                 continue;
@@ -137,6 +139,7 @@ pub async fn analyze_block<P>(
                     bot,
                     etherscan_client,
                     chain_id,
+                    Arc::clone(&chain_contracts)
                 )
                 .await;
                 continue;

@@ -7,13 +7,7 @@ use alloy::{primitives::Address, providers::Provider};
 use teloxide::Bot;
 
 use crate::{
-    decscreener::token_details::get_dexscreener_data,
-    etherscan::client::EtherscanClient,
-    lplock::lp_lock::is_lp_locked,
-    telegram,
-    token::{honeypot::get_honey_pot, info::get_deployer},
-    types::{PartialTokenInfo, TokenInfo},
-    utils::helpers::calculate_volatility,
+    decscreener::token_details::get_dexscreener_data, etherscan::client::EtherscanClient, lplock::lp_lock::is_lp_locked, telegram, token::{honeypot::get_honey_pot, info::get_deployer}, types::{PartialTokenInfo, TokenInfo}, utils::{constant::Contracts, helpers::calculate_volatility},
 };
 
 pub async fn run_pipeline<P>(
@@ -24,6 +18,7 @@ pub async fn run_pipeline<P>(
     bot: &Bot,
     etherscan_client: &EtherscanClient,
     chain_id: u64,
+    chain_contracts: Arc<Contracts>
 ) where
     P: Provider,
 {
@@ -52,7 +47,7 @@ pub async fn run_pipeline<P>(
     .unwrap();
 
     let deployer = get_deployer(provider, &honeypoy_res.pair.creation_tx_hash).await;
-    let is_lp_locked = is_lp_locked(&token_info.pair_address, &provider).await;
+    let is_lp_locked = is_lp_locked(&token_info.pair_address, &provider, chain_contracts).await;
 
     let liquidity_usd = dex_data.liquidity_usd;
     let marketcap_usd = dex_data.market_cap;

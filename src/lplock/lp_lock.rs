@@ -1,16 +1,17 @@
+use std::sync::Arc;
+
 use alloy::{
     primitives::{Address, U256},
     providers::Provider,
 };
 
 use crate::utils::{
-    constant::{DEAD1, DEAD2, PINKLOCK, TEAMFINANCE, UNICRYPT},
-    contracts::IUniswapV2Pair,
+    constant::{Contracts, DEAD1, DEAD2, PINKLOCK, TEAMFINANCE, UNICRYPT}, contracts::IUniswapV2Pair,
 };
 
 const LOCK_THRESHOLD: u8 = 80;
 
-pub async fn is_lp_locked<P: Provider>(pair_address: &Address, provider: P) -> bool {
+pub async fn is_lp_locked<P: Provider>(pair_address: &Address, provider: P, chain_contracts: Arc<Contracts>) -> bool {
     let pair = IUniswapV2Pair::new(*pair_address, provider);
 
     let total_supply = match pair.totalSupply().call().await {
@@ -32,17 +33,17 @@ pub async fn is_lp_locked<P: Provider>(pair_address: &Address, provider: P) -> b
         Err(_) => U256::ZERO,
     };
 
-    let team_finance_lock = match pair.balanceOf(TEAMFINANCE).call().await {
+    let team_finance_lock = match pair.balanceOf(chain_contracts.team_finance).call().await {
         Ok(b) => b,
         Err(_) => U256::ZERO,
     };
 
-    let unicrypt_lock = match pair.balanceOf(UNICRYPT).call().await {
+    let unicrypt_lock = match pair.balanceOf(chain_contracts.unicrypt).call().await {
         Ok(b) => b,
         Err(_) => U256::ZERO,
     };
 
-    let pink_lock = match pair.balanceOf(PINKLOCK).call().await {
+    let pink_lock = match pair.balanceOf(chain_contracts.pinklock).call().await {
         Ok(b) => b,
         Err(_) => U256::ZERO,
     };
