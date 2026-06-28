@@ -6,7 +6,7 @@ use alloy::{
 };
 
 use crate::utils::{
-    constant::{Contracts, DEAD1, DEAD2, PINKLOCK, TEAMFINANCE, UNICRYPT},
+    constant::{Contracts, DEAD1, DEAD2},
     contracts::IUniswapV2Pair,
 };
 
