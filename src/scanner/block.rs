@@ -29,9 +29,6 @@ pub async fn analyze_block<P>(
         .expect("failed to get block receipts");
 
     for receipt in block_log_receipts {
-        // if !receipt.status() {
-        //     continue;
-        // }
         for log in receipt.inner.logs() {
             let log_address: Address = log.address();
 
