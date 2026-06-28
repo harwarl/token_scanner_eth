@@ -20,7 +20,12 @@ where
         let currency0 = pool_event.currency0;
         let currency1 = pool_event.currency1;
 
-        let base_tokens = [chain_contracts.usdt, chain_contracts.usdc, chain_contracts.weth];
+        let base_tokens = [
+            chain_contracts.usdt,
+            chain_contracts.usdc,
+            chain_contracts.weth,
+            chain_contracts.native,
+        ];
 
         // Filter - Only WETH, USDC and USDT
         let token_address = if base_tokens.contains(&currency0) {
@@ -32,9 +37,7 @@ where
         };
 
         let token_info = get_token_info(provider, token_address).await;
-
-        println!("Token Info: {:?}", token_info);
-
+        
         return Some(PartialTokenInfo {
             token_address,
             pair_address: pool_event.address,

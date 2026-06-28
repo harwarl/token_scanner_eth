@@ -7,7 +7,13 @@ use alloy::{primitives::Address, providers::Provider};
 use teloxide::Bot;
 
 use crate::{
-    decscreener::token_details::get_dexscreener_data, etherscan::client::EtherscanClient, lplock::lp_lock::is_lp_locked, telegram, token::{honeypot::get_honey_pot, info::get_deployer}, types::{PartialTokenInfo, TokenInfo}, utils::{constant::Contracts, helpers::calculate_volatility},
+    decscreener::token_details::get_dexscreener_data,
+    etherscan::client::EtherscanClient,
+    lplock::lp_lock::is_lp_locked,
+    telegram,
+    token::{honeypot::get_honey_pot, info::get_deployer},
+    types::{PartialTokenInfo, TokenInfo},
+    utils::{constant::Contracts, helpers::calculate_volatility},
 };
 
 pub async fn run_pipeline<P>(
@@ -18,7 +24,7 @@ pub async fn run_pipeline<P>(
     bot: &Bot,
     etherscan_client: &EtherscanClient,
     chain_id: u64,
-    chain_contracts: Arc<Contracts>
+    chain_contracts: Arc<Contracts>,
 ) where
     P: Provider,
 {
@@ -73,9 +79,9 @@ pub async fn run_pipeline<P>(
     // filter based on volume... TODO
 
     // Filter based on age
-    
+
     if dex_data.age_hours > 5 {
-        return
+        return;
     }
 
     // Etherscan calls

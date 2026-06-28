@@ -6,12 +6,17 @@ use alloy::{
 };
 
 use crate::utils::{
-    constant::{Contracts, DEAD1, DEAD2, PINKLOCK, TEAMFINANCE, UNICRYPT}, contracts::IUniswapV2Pair,
+    constant::{Contracts, DEAD1, DEAD2, PINKLOCK, TEAMFINANCE, UNICRYPT},
+    contracts::IUniswapV2Pair,
 };
 
 const LOCK_THRESHOLD: u8 = 80;
 
-pub async fn is_lp_locked<P: Provider>(pair_address: &Address, provider: P, chain_contracts: Arc<Contracts>) -> bool {
+pub async fn is_lp_locked<P: Provider>(
+    pair_address: &Address,
+    provider: P,
+    chain_contracts: Arc<Contracts>,
+) -> bool {
     let pair = IUniswapV2Pair::new(*pair_address, provider);
 
     let total_supply = match pair.totalSupply().call().await {
