@@ -1,8 +1,9 @@
 use std::{
     collections::HashSet,
-    sync::{Arc, RwLock},
+    sync::{Arc},
 };
 
+use tokio::sync::RwLock;
 use alloy::{primitives::Address, providers::Provider};
 use teloxide::Bot;
 
@@ -10,6 +11,7 @@ use crate::{
     decscreener::token_details::get_dexscreener_data,
     etherscan::client::EtherscanClient,
     lplock::lp_lock::is_lp_locked,
+    scanner::bad_actor::BadActorDB,
     telegram,
     token::{honeypot::get_honey_pot, info::get_deployer},
     types::{PartialTokenInfo, TokenInfo},
@@ -25,11 +27,12 @@ pub async fn run_pipeline<P>(
     etherscan_client: &EtherscanClient,
     chain_id: u64,
     chain_contracts: Arc<Contracts>,
+    bad_actors: Arc<RwLock<BadActorDB>>,
 ) where
     P: Provider,
 {
     {
-        let mut pairs = checked_pairs.write().unwrap();
+        let mut pairs = checked_pairs.write().await;
         if pairs.contains(&pair_address) {
             return;
         }
@@ -53,6 +56,18 @@ pub async fn run_pipeline<P>(
     .unwrap();
 
     let deployer = get_deployer(provider, &honeypoy_res.pair.creation_tx_hash).await;
+
+    // Check if the deployer is a saint
+    if bad_actors
+        .write()
+        .await
+        .is_bad_actor(etherscan_client, &deployer, chain_id)
+        .await
+    {
+        tracing::info!("Skipping bad actor: {deployer}");
+        return;
+    }
+
     let is_lp_locked = is_lp_locked(&token_info.pair_address, &provider, chain_contracts).await;
 
     let liquidity_usd = dex_data.liquidity_usd;

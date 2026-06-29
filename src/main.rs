@@ -1,12 +1,15 @@
 use std::{
     collections::HashSet,
-    sync::{Arc, RwLock},
+    sync::{Arc},
 };
+
+use tokio::sync::RwLock;
 
 use crate::{
     config::Config,
     etherscan::client::EtherscanClient,
     library::server_balancer::{LoadBalancer, Server},
+    scanner::bad_actor::{self, BadActorDB},
 };
 use alloy::{primitives::Address, providers::Provider};
 use axum::{Router, routing::get};
@@ -70,6 +73,7 @@ async fn main() {
     let fallback_provider = Arc::new(provider::connect(config.rpc_url.clone()).await);
     let etherscan_client = Arc::new(EtherscanClient::new(config.etherscan_api_key.clone()));
     let chain_contracts = Arc::new(config.chain_contracts.clone());
+    let bad_actors = Arc::new(RwLock::new(BadActorDB::new()));
     let bot = config.get_bot();
 
     // Add logic to process new blocks and scan for token transfers
@@ -77,7 +81,7 @@ async fn main() {
         let block_number = block.number;
 
         if block_number % 10000 == 0 {
-            checked_pairs.write().unwrap().clear();
+            checked_pairs.write().await.clear();
         }
 
         let etherscan_client = Arc::clone(&etherscan_client);
@@ -85,6 +89,7 @@ async fn main() {
         let provider_balancer = Arc::clone(&provider_balancer);
         let fallback = Arc::clone(&fallback_provider);
         let chain_contracts = Arc::clone(&chain_contracts);
+        let bad_actors = Arc::clone(&bad_actors);
 
         let bot = bot.clone();
 
@@ -106,6 +111,7 @@ async fn main() {
                 &etherscan_client,
                 config.chain_id,
                 chain_contracts,
+                bad_actors,
             )
             .await;
         });

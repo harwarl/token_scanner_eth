@@ -1,3 +1,4 @@
+pub mod bad_actor;
 pub mod block;
 pub mod mint;
 pub mod pair;

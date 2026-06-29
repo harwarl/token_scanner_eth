@@ -37,7 +37,7 @@ where
         };
 
         let token_info = get_token_info(provider, token_address).await;
-        
+
         return Some(PartialTokenInfo {
             token_address,
             pair_address: pool_event.address,

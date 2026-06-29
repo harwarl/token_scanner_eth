@@ -1,14 +1,16 @@
 use std::{
     collections::HashSet,
-    sync::{Arc, RwLock},
+    sync::{Arc},
 };
+
+use tokio::sync::RwLock;
 
 use alloy::{primitives::Address, providers::Provider};
 use teloxide::Bot;
 
 use crate::{
     etherscan::client::EtherscanClient,
-    scanner::{self, pipeline},
+    scanner::{self, bad_actor::BadActorDB, pipeline},
     utils::{constant::Contracts, contracts::IUniswapV2Pair, helpers::get_block_receipts},
 };
 
@@ -21,6 +23,7 @@ pub async fn analyze_block<P>(
     etherscan_client: &EtherscanClient,
     chain_id: u64,
     chain_contracts: Arc<Contracts>,
+    bad_actors: Arc<RwLock<BadActorDB>>,
 ) where
     P: Provider,
 {
@@ -34,7 +37,7 @@ pub async fn analyze_block<P>(
 
             // Move to the next log if the pair has already been processed
             {
-                let pairs = checked_pairs.read().unwrap();
+                let pairs = checked_pairs.read().await;
                 if pairs.contains(&log_address) {
                     continue;
                 }
@@ -54,6 +57,7 @@ pub async fn analyze_block<P>(
                         etherscan_client,
                         chain_id,
                         Arc::clone(&chain_contracts),
+                        Arc::clone(&bad_actors),
                     )
                     .await;
                     continue;
@@ -111,6 +115,7 @@ pub async fn analyze_block<P>(
                     etherscan_client,
                     chain_id,
                     Arc::clone(&chain_contracts),
+                    Arc::clone(&bad_actors),
                 )
                 .await;
                 continue;
@@ -137,6 +142,7 @@ pub async fn analyze_block<P>(
                     etherscan_client,
                     chain_id,
                     Arc::clone(&chain_contracts),
+                    Arc::clone(&bad_actors),
                 )
                 .await;
                 continue;
