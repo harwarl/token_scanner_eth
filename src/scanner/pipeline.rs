@@ -1,11 +1,8 @@
-use std::{
-    collections::HashSet,
-    sync::{Arc},
-};
+use std::{collections::HashSet, sync::Arc};
 
-use tokio::sync::RwLock;
 use alloy::{primitives::Address, providers::Provider};
 use teloxide::Bot;
+use tokio::sync::RwLock;
 
 use crate::{
     decscreener::token_details::get_dexscreener_data,
@@ -61,10 +58,10 @@ pub async fn run_pipeline<P>(
     if bad_actors
         .write()
         .await
-        .is_bad_actor(etherscan_client, &deployer, chain_id)
+        .is_bad_actor(etherscan_client, &deployer)
         .await
     {
-        tracing::info!("Skipping bad actor: {deployer}");
+        println!("Bad Actor Detected");
         return;
     }
 
@@ -101,12 +98,10 @@ pub async fn run_pipeline<P>(
 
     // Etherscan calls
     let contract_info = etherscan_client
-        .get_contract_info(chain_id, &token_info.token_address)
+        .get_contract_info(&token_info.token_address)
         .await;
-    let wallet_info = etherscan_client.get_wallet_info(chain_id, &deployer).await;
-    let bad_reputation = etherscan_client
-        .check_deployer_reputation(chain_id, &deployer)
-        .await;
+    let wallet_info = etherscan_client.get_wallet_info(&deployer).await;
+    let bad_reputation = etherscan_client.check_deployer_reputation(&deployer).await;
     // let holder_count = etherscan_client.get_holder_count(&token_info.address).await;
 
     // Get Prices

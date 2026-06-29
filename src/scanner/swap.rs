@@ -54,7 +54,6 @@ pub async fn decode_swap<P: Provider>(
                 //     past_swap_event.amount1In.to::<u128>() as f64 / 1e18
                 // };
                 // volume_usd += weth_in * eth_price;
-
                 let swap_direction = if past_swap_event.amount1Out == U256::ZERO {
                     if token0 == weth { 1 } else { 0 }
                 } else {
@@ -67,7 +66,7 @@ pub async fn decode_swap<P: Provider>(
             }
         }
 
-        if buy_counts < 20 {
+        if buy_counts < 2 {
             return None;
         }
 

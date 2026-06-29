@@ -1,7 +1,4 @@
-use std::{
-    collections::HashSet,
-    sync::{Arc},
-};
+use std::{collections::HashSet, sync::Arc};
 
 use tokio::sync::RwLock;
 
@@ -34,7 +31,6 @@ pub async fn analyze_block<P>(
     for receipt in block_log_receipts {
         for log in receipt.inner.logs() {
             let log_address: Address = log.address();
-
             // Move to the next log if the pair has already been processed
             {
                 let pairs = checked_pairs.read().await;

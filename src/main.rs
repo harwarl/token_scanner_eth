@@ -1,7 +1,4 @@
-use std::{
-    collections::HashSet,
-    sync::{Arc},
-};
+use std::{collections::HashSet, sync::Arc};
 
 use tokio::sync::RwLock;
 
@@ -11,7 +8,10 @@ use crate::{
     library::server_balancer::{LoadBalancer, Server},
     scanner::bad_actor::{self, BadActorDB},
 };
-use alloy::{primitives::Address, providers::Provider};
+use alloy::{
+    primitives::{Address, address},
+    providers::Provider,
+};
 use axum::{Router, routing::get};
 use futures_util::StreamExt;
 use tracing_subscriber::EnvFilter;
@@ -71,7 +71,10 @@ async fn main() {
     let provider_balancer = Arc::new(LoadBalancer::new(config.chain_id, config.free_rpcs));
 
     let fallback_provider = Arc::new(provider::connect(config.rpc_url.clone()).await);
-    let etherscan_client = Arc::new(EtherscanClient::new(config.etherscan_api_key.clone()));
+    let etherscan_client = Arc::new(EtherscanClient::new(
+        config.etherscan_api_key.clone(),
+        config.chain_id,
+    ));
     let chain_contracts = Arc::new(config.chain_contracts.clone());
     let bad_actors = Arc::new(RwLock::new(BadActorDB::new()));
     let bot = config.get_bot();

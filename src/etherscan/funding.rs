@@ -1,12 +1,12 @@
 use alloy::primitives::Address;
 
 use crate::{
-    etherscan::client::{Chain, EtherscanClient},
+    etherscan::client::EtherscanClient,
     types::{EtherscanResponse, Transaction},
 };
 
 impl EtherscanClient {
-    pub async fn get_funding_source(&self, deployer: &Address, chain_id: u64) -> Option<Address> {
+    pub async fn get_funding_source(&self, deployer: &Address) -> Option<Address> {
         // Get the first normal transaction to the deployer wallet
         let deployer_str = deployer.to_string();
 
@@ -17,13 +17,12 @@ impl EtherscanClient {
             ("startblock", "0"),
             ("endblock", "99999999"),
             ("page", "1"),
-            ("offset", "1"), // only need the first tx
-            ("sort", "asc"), // oldest first
+            ("offset", "1"),
+            ("sort", "asc"),
         ];
 
-        let chain = Chain::from_chain_id(chain_id).unwrap_or(Chain::Ethereum);
         let res = self
-            .get::<EtherscanResponse<Vec<Transaction>>>(chain, &params)
+            .get::<EtherscanResponse<Vec<Transaction>>>(&params)
             .await?;
 
         let first_tx = res.result.first()?;

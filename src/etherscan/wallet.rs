@@ -7,7 +7,7 @@ use crate::{
 
 impl EtherscanClient {
     /// Gets the first transaction of a wallet to determine its age
-    pub async fn get_wallet_age_days(&self, chain_id: u64, deployer: &Address) -> Option<u64> {
+    pub async fn get_wallet_age_days(&self, deployer: &Address) -> Option<u64> {
         let deployer_str = deployer.to_string();
         let params = [
             ("module", "account"),
@@ -20,9 +20,8 @@ impl EtherscanClient {
             ("sort", "asc"),
         ];
 
-        let chain = Chain::from_chain_id(chain_id).unwrap_or(Chain::Ethereum);
         let res = self
-            .get::<EtherscanResponse<Vec<Transaction>>>(chain, &params)
+            .get::<EtherscanResponse<Vec<Transaction>>>(&params)
             .await?;
 
         if res.status != "1" {
@@ -42,7 +41,7 @@ impl EtherscanClient {
     }
 
     /// Gets all contracts deployed by a wallet
-    pub async fn get_deployed_contracts(&self, chain_id: u64, deployer: &Address) -> Vec<Address> {
+    pub async fn get_deployed_contracts(&self, deployer: &Address) -> Vec<Address> {
         let deployer_str = deployer.to_string();
         let params = [
             ("module", "account"),
@@ -53,9 +52,8 @@ impl EtherscanClient {
             ("sort", "asc"),
         ];
 
-        let chain = Chain::from_chain_id(chain_id).unwrap_or(Chain::Ethereum);
         let res = match self
-            .get::<EtherscanResponse<Vec<Transaction>>>(chain, &params)
+            .get::<EtherscanResponse<Vec<Transaction>>>(&params)
             .await
         {
             Some(r) => r,
@@ -75,12 +73,9 @@ impl EtherscanClient {
     }
 
     /// Gets full wallet info — age, deployed contracts, fresh wallet flag
-    pub async fn get_wallet_info(&self, chain_id: u64, deployer: &Address) -> WalletInfo {
-        let age_days = self
-            .get_wallet_age_days(chain_id, deployer)
-            .await
-            .unwrap_or(0);
-        let deployed_contracts = self.get_deployed_contracts(chain_id, deployer).await;
+    pub async fn get_wallet_info(&self, deployer: &Address) -> WalletInfo {
+        let age_days = self.get_wallet_age_days(deployer).await.unwrap_or(0);
+        let deployed_contracts = self.get_deployed_contracts(deployer).await;
 
         WalletInfo {
             is_fresh_wallet: age_days < 30,
@@ -91,8 +86,8 @@ impl EtherscanClient {
 
     /// Checks if a deployer has previously deployed honeypot or rugged tokens
     /// by cross checking their deployed contracts against the honeypot API
-    pub async fn check_deployer_reputation(&self, chain_id: u64, deployer: &Address) -> bool {
-        let contracts = self.get_deployed_contracts(chain_id, deployer).await;
+    pub async fn check_deployer_reputation(&self, deployer: &Address) -> bool {
+        let contracts = self.get_deployed_contracts(deployer).await;
 
         if contracts.is_empty() {
             return false;
@@ -108,9 +103,7 @@ impl EtherscanClient {
                 ("address", contract_str.as_str()),
             ];
 
-            let chain = Chain::from_chain_id(chain_id).unwrap_or(Chain::Ethereum);
-
-            if let Some(res) = self.get::<serde_json::Value>(chain, &params).await {
+            if let Some(res) = self.get::<serde_json::Value>(&params).await {
                 let source = res["result"][0]["SourceCode"].as_str().unwrap_or("");
                 if source.is_empty() {
                     unverified += 1;

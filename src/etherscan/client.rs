@@ -35,27 +35,31 @@ pub struct EtherscanClient {
     pub client: Client,
     pub api_key: String,
     pub base_url: String,
+    pub chain_id: u64,
 }
 
 impl EtherscanClient {
-    pub fn new(api_key: String) -> Self {
+    pub fn new(api_key: String, chain_id: u64) -> Self {
         Self {
             client: reqwest::Client::new(),
             api_key,
-            base_url: "https://api.etherscan.io/v2/api".to_string(),
+            base_url: match chain_id {
+                8453 => "https://base.blockscout.com/api".to_string(),
+                _ => "https://api.etherscan.io/v2/api".to_string(),
+            },
+            chain_id,
         }
     }
 
-    pub async fn get<T: DeserializeOwned>(
-        &self,
-        chain: Chain,
-        params: &[(&str, &str)],
-    ) -> Option<T> {
+    pub async fn get<T: DeserializeOwned>(&self, params: &[(&str, &str)]) -> Option<T> {
         let mut query = params.to_vec();
-        let chain_id = chain.chain_id().to_string();
 
+        if self.chain_id == 1 {
+            query.push(("apiKey", &self.api_key.as_str()));
+        }
+
+        let chain_id = format!("{}", self.chain_id);
         query.push(("chainid", &chain_id));
-        query.push(("apiKey", &self.api_key.as_str()));
 
         let url = reqwest::Url::parse_with_params(&self.base_url, query.iter()).unwrap();
         match self.client.get(url).send().await {

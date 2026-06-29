@@ -1,17 +1,13 @@
 use alloy::primitives::Address;
 
 use crate::{
-    etherscan::client::{Chain, EtherscanClient},
+    etherscan::client::EtherscanClient,
     types::{ContractCreation, ContractInfo, EtherscanResponse, SourceCode},
 };
 
 impl EtherscanClient {
     /// Gets contract creation details including deployer and tx hash
-    pub async fn get_contract_creation(
-        &self,
-        chain_id: u64,
-        token: &Address,
-    ) -> Option<ContractCreation> {
+    pub async fn get_contract_creation(&self, token: &Address) -> Option<ContractCreation> {
         let token_str = token.to_string();
         let params = [
             ("module", "contract"),
@@ -19,9 +15,8 @@ impl EtherscanClient {
             ("contractaddresses", token_str.as_str()),
         ];
 
-        let chain = Chain::from_chain_id(chain_id).unwrap_or(Chain::Ethereum);
         let res = self
-            .get::<EtherscanResponse<Vec<ContractCreation>>>(chain, &params)
+            .get::<EtherscanResponse<Vec<ContractCreation>>>(&params)
             .await?;
 
         if res.status != "1" {
@@ -32,7 +27,7 @@ impl EtherscanClient {
     }
 
     /// Checks if a contract is verified and returns source code info
-    pub async fn get_source_code(&self, chain_id: u64, token: &Address) -> Option<SourceCode> {
+    pub async fn get_source_code(&self, token: &Address) -> Option<SourceCode> {
         let token_str = token.to_string();
         let params = [
             ("module", "contract"),
@@ -40,9 +35,8 @@ impl EtherscanClient {
             ("address", token_str.as_str()),
         ];
 
-        let chain = Chain::from_chain_id(chain_id).unwrap_or(Chain::Ethereum);
         let res = self
-            .get::<EtherscanResponse<Vec<SourceCode>>>(chain, &params)
+            .get::<EtherscanResponse<Vec<SourceCode>>>(&params)
             .await?;
 
         if res.status != "1" {
@@ -53,9 +47,9 @@ impl EtherscanClient {
     }
 
     /// Returns combined contract info — verified status, deployer, tx hash
-    pub async fn get_contract_info(&self, chain_id: u64, token: &Address) -> ContractInfo {
-        let source = self.get_source_code(chain_id, token).await;
-        let creation = self.get_contract_creation(chain_id, token).await;
+    pub async fn get_contract_info(&self, token: &Address) -> ContractInfo {
+        let source = self.get_source_code(token).await;
+        let creation = self.get_contract_creation(token).await;
 
         let verified = source
             .as_ref()

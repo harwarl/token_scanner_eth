@@ -3,7 +3,7 @@ use alloy::{primitives::Address, providers::Provider, rpc::types::Log, sol_types
 use crate::{
     token::info::get_token_info,
     types::PartialTokenInfo,
-    utils::{constant::MIN_ETH_LIQUIDITY, contracts::IUniswapV2Pair},
+    utils::{contracts::IUniswapV2Pair},
 };
 
 pub async fn decode_mint<P>(
@@ -17,6 +17,7 @@ where
     P: Provider,
 {
     if let Ok(_) = IUniswapV2Pair::Mint::decode_log(&log.inner.as_ref()) {
+        println!("Mint decoded");
         let pair_address = log.address();
 
         // Check liquidity directly from the Mint event — no getReserves needed

@@ -24,19 +24,14 @@ impl BadActorDB {
         }
     }
 
-    pub async fn is_bad_actor(
-        &mut self,
-        etherscan: &EtherscanClient,
-        deployer: &Address,
-        chain_id: u64,
-    ) -> bool {
+    pub async fn is_bad_actor(&mut self, etherscan: &EtherscanClient, deployer: &Address) -> bool {
         // check deployer
         if self.deployers.contains(deployer) {
             return true;
         }
 
         // get the funder
-        if let Some(funder) = etherscan.get_funding_source(deployer, chain_id).await {
+        if let Some(funder) = etherscan.get_funding_source(deployer).await {
             if self.funding_sources.contains(&funder) {
                 self.deployers.insert(funder);
                 return true;

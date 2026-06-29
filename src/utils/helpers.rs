@@ -1,4 +1,5 @@
 use alloy::{
+    eips::BlockNumberOrTag,
     primitives::{Address, B256, keccak256},
     providers::Provider,
     rpc::types::Block,
@@ -84,10 +85,10 @@ where
     {
         Ok(Some(block)) => Ok(block),
         _ => {
-            tracing::warn!(
-                "Primary RPC failed for block {}, trying fallback",
-                block_number
-            );
+            // tracing::warn!(
+            //     "Primary RPC failed for block {}, trying fallback",
+            //     block_number
+            // );
             fallback
                 .get_block_by_number(block_number.into())
                 .hashes()
@@ -146,10 +147,29 @@ where
         let raw: serde_json::Value = provider
             .raw_request(
                 "eth_getBlockReceipts".into(),
-                (format!("0x{:x}", block_number),), // hex string
+                // (format!("0x{:x}", block_number),), // hex string
+                (BlockNumberOrTag::Number(block_number),),
             )
             .await?;
-        let receipts: Vec<OpTransactionReceipt> = serde_json::from_value(raw)?;
+
+        // let receipts: Vec<OpTransactionReceipt> = serde_json::from_value(raw)?;
+        
+        // Deserialize each receipt individually, skipping unknown tx types
+        let receipts = raw
+            .as_array()
+            .ok_or_else(|| eyre::eyre!("expected array"))?
+            .iter()
+            .filter_map(
+                |r| match serde_json::from_value::<OpTransactionReceipt>(r.clone()) {
+                    Ok(receipt) => Some(receipt),
+                    Err(e) => {
+                        tracing::warn!("Skipping receipt with unknown type: {e}");
+                        None
+                    }
+                },
+            )
+            .collect();
+
         Ok(receipts)
     }
 
