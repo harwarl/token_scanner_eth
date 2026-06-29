@@ -61,7 +61,6 @@ pub async fn run_pipeline<P>(
         .is_bad_actor(etherscan_client, &deployer)
         .await
     {
-        println!("Bad Actor Detected");
         return;
     }
 

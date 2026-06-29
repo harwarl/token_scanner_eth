@@ -6,10 +6,10 @@ use crate::{
     config::Config,
     etherscan::client::EtherscanClient,
     library::server_balancer::{LoadBalancer, Server},
-    scanner::bad_actor::{self, BadActorDB},
+    scanner::bad_actor::{BadActorDB},
 };
 use alloy::{
-    primitives::{Address, address},
+    primitives::{Address},
     providers::Provider,
 };
 use axum::{Router, routing::get};

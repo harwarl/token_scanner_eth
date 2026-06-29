@@ -27,7 +27,7 @@ where
             chain_contracts.native,
         ];
 
-        // Filter - Only WETH, USDC and USDT
+        // Filter - Only WETH, ETH, USDC and USDT
         let token_address = if base_tokens.contains(&currency0) {
             currency1
         } else if base_tokens.contains(&currency1) {
