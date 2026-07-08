@@ -1,7 +1,6 @@
 # Stage 1: Build
 FROM rust:1.96-alpine AS build
-RUN apk add --no-cache musl-dev ca-certificates openssl-dev openssl-libs-static pkgconf
-WORKDIR /app
+
 
 COPY Cargo.toml ./
 COPY abi ./abi
