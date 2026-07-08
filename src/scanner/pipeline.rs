@@ -71,7 +71,7 @@ pub async fn run_pipeline<P>(
     // Filter based on Liquidity
     match dex_data.liquidity_weth {
         Some(liq_weth) => {
-            if liq_weth < 2f64 || liq_weth > 20f64 {
+            if liq_weth >= 20_000f64  {
                 return;
             }
         }
@@ -83,7 +83,7 @@ pub async fn run_pipeline<P>(
     }
 
     // Filter Based on MC
-    if marketcap_usd < 10_000f64 || marketcap_usd > 500_000f64 {
+    if marketcap_usd < 100_000f64 || marketcap_usd > 500_000f64 {
         return;
     }
 
